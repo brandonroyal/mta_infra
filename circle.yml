@@ -10,4 +10,4 @@ machine:
 
 test:
   override:
-    - ./azure/testdeploy.sh
+    - ./tests/azure/testdeploy.sh
