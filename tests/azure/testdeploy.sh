@@ -11,7 +11,7 @@
 cat ./tests/azure/azuredeploy.template.json
 cat ./tests/azure/azuredeploy.template.json > azuredeploy.template.json
 cat azuredeploy.template.json
-sed "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.template.json > azuredeploy.parameters.json
+sed -i "" "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.template.json > azuredeploy.parameters.json
 cat azuredeploy.parameters.json
 
 #cleanup
