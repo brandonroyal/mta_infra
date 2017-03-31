@@ -32,6 +32,14 @@ function Enable-TestMode() {
 function Disable-Firewall () {
     #Disable firewall (temporary)
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+
+    #Ensure public profile is disabled (solves public profile not persisting issue)
+    $data = netsh advfirewall show publicprofile
+    $data = $data[3]
+    if ($data -Match "ON"){
+        Set-NetFirewallProfile -Profile Public -Enabled False
+    }
+
 }
 
 function Enable-RemotePowershell () {

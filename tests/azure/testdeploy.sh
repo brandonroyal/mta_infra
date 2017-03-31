@@ -7,11 +7,8 @@ export storage_account_name=broyalmta
 
 az group create --name $resource_group_name --location $location
 
-search="{{storageAccountKey}}"
-
-echo $PWD
-sed -i "" "s/${search}/${storageAccountKey}/g" $PWD/tests/azure/azuredeploy.parameters.json
-cat $PWD/tests/azure/azuredeploy.parameters.json
+sed "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.parameters.json > azuredeploy.parameters2.json
+cat azuredeploy.parameters2.json
 
 #cleanup
 az group delete -n $resource_group_name -y
