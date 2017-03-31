@@ -1,18 +1,19 @@
 #/bin/bash
-# az login  --service-principal -u $u -p $p --tenant $tenant
+az login  --service-principal -u $u -p $p --tenant $tenant
 
-# export resource_group_name=broyal_ci$CIRCLE_BUILD_NUM
-# export location=eastus
-# export storage_account_name=broyalmta
+#set variables
+export resource_group_name=broyal_ci$CIRCLE_BUILD_NUM
+export location=eastus
+export storage_account_name=broyalmta
 
-# az group create --name $resource_group_name --location $location
+#create resource group
+az group create --name $resource_group_name --location $location
 
-#sed "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.parameters.json > azuredeploy.parameters2.json
-cat ./tests/azure/azuredeploy.template.json
-cat ./tests/azure/azuredeploy.template.json > ./azuredeploy.template.json
-cat ./azuredeploy.template.json
-sed -i "" "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" ./azuredeploy.template.json > ./azuredeploy.parameters.json
-cat ./azuredeploy.parameters.json
+#get azuredeploy.parameters.json and add STORAGE_ACCOUNT_KEY
+parameters=$(cat ./tests/azure/azuredeploy.template.json)
+parameters="${parameters/STORAGE_ACCOUNT_KEY/$STORAGE_ACCOUNT_KEY}"
+
+az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g 
 
 #cleanup
-# az group delete -n $resource_group_name -y
+az group delete -n $resource_group_name -y

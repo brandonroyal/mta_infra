@@ -27,7 +27,7 @@
       "value": "broyalci"
     },
     "storageAccountKey": {
-      "value": "{{storageAccountKey}}"
+      "value": "STORAGE_ACCOUNT_KEY"
     },
     "storageContainerName": {
       "value": "hotfix"
