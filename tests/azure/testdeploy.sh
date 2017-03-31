@@ -9,7 +9,7 @@ az group create --name $resource_group_name --location $location
 
 search="{{storageAccountKey}}"
 
-echo $pwd
+echo $PWD
 sed -i "" "s/${search}/${storageAccountKey}/g" ./azuredeploy.parameters.json
 cat ./tests/azure/azuredeploy.parameters.json
 
