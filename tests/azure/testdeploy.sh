@@ -9,10 +9,10 @@
 
 #sed "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.parameters.json > azuredeploy.parameters2.json
 cat ./tests/azure/azuredeploy.template.json
-cat ./tests/azure/azuredeploy.template.json > azuredeploy.template.json
-cat azuredeploy.template.json
-sed -i "" "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.template.json > azuredeploy.parameters.json
-cat azuredeploy.parameters.json
+cat ./tests/azure/azuredeploy.template.json > ./azuredeploy.template.json
+cat ./azuredeploy.template.json
+sed -i "" "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" ./azuredeploy.template.json > ./azuredeploy.parameters.json
+cat ./azuredeploy.parameters.json
 
 #cleanup
 # az group delete -n $resource_group_name -y
