@@ -8,6 +8,8 @@ export storage_account_name=broyalmta
 az group create --name $resource_group_name --location $location
 
 #sed "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.parameters.json > azuredeploy.parameters2.json
+cat ./tests/azure/azuredeploy.template.json > azuredeploy.template.json
+sed "s/{{storageAccountKey}}/${STORAGE_ACCOUNT_KEY}/g" azuredeploy.template.json > azuredeploy.parameters.json
 cat azuredeploy.parameters.json
 
 #cleanup
