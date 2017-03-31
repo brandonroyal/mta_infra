@@ -10,8 +10,8 @@ export storage_account_name=broyalmta
 az group create --name $resource_group_name --location $location
 
 #get azuredeploy.parameters.json and add STORAGE_ACCOUNT_KEY
-parameters=$(cat ./tests/azure/azuredeploy.template.json)
-parameters="${parameters/STORAGE_ACCOUNT_KEY/$STORAGE_ACCOUNT_KEY}"
+params_template=$(cat ./tests/azure/azuredeploy.template.json)
+parameters="${params_template/STORAGE_ACCOUNT_KEY/$STORAGE_ACCOUNT_KEY}"
 
 az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g 
 
