@@ -12,38 +12,38 @@ az group create --name $resource_group_name --location $location
 #get azuredeploy.parameters.json and add STORAGE_ACCOUNT_KEY
 parameters="
 {
-    '\$schema': 'http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#',
-    'contentVersion': '1.0.0.0',
-    'parameters': {
-        'prefix': {
-            'value': 'broyal'
+    \"\$schema\": \"http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#\",
+    \"contentVersion\": \"1.0.0.0\",
+    \"parameters\": {
+        \"prefix\": {
+            \"value\": \"broyal\"
         },
-        'adminUsername': {
-            'value': 'docker'
+        \"adminUsername\": {
+            \"value\": \"docker\"
         },
-        'adminPassword': {
-            'value': 'P@ssword1'
+        \"adminPassword\": {
+            \"value\": \"P@ssword1\"
         },
-        'sshPublicKey': {
-            value': 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDdqs3DLhpiXMSOTgSk0X7pjOE8Jk502pX1qERGACbuArBFUGxBAjBl5c3wdenC/P8oYtvHFGN0syVCaqxsn87vp//IWTzF2LIOySJQ55N9Wq2SpNEiEOxtgrF5O4EhC8pwQphEwovChwVijOJEQl0WX2HhGZBTiDmTFrCVl22S0CCHymthkDtFsiE5LCXMbZvOk5olZEAzLymrO1SKjHsgQruZAFFWSxoyUPn2SmmD2Br6SQe9sQr4k+CCQ5q3NYXxsj0tpbnNIpKg85ozsQ9CUgc+06juEqahuj1p5DLkbZfHz0zlmPd3wbM02YLQNX8ZxdLBF4RLVSv4dW4NwPxf broyal@docker.com'
+        \"sshPublicKey\": {
+            value\": \"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDdqs3DLhpiXMSOTgSk0X7pjOE8Jk502pX1qERGACbuArBFUGxBAjBl5c3wdenC/P8oYtvHFGN0syVCaqxsn87vp//IWTzF2LIOySJQ55N9Wq2SpNEiEOxtgrF5O4EhC8pwQphEwovChwVijOJEQl0WX2HhGZBTiDmTFrCVl22S0CCHymthkDtFsiE5LCXMbZvOk5olZEAzLymrO1SKjHsgQruZAFFWSxoyUPn2SmmD2Br6SQe9sQr4k+CCQ5q3NYXxsj0tpbnNIpKg85ozsQ9CUgc+06juEqahuj1p5DLkbZfHz0zlmPd3wbM02YLQNX8ZxdLBF4RLVSv4dW4NwPxf broyal@docker.com\"
         },
-        'vmSize': {
-            'value': 'Standard_DS2'
+        \"vmSize\": {
+            \"value\": \"Standard_DS2\"
         },
-        'storageDomain': {
-            'value': 'blob.core.windows.net'
+        \"storageDomain\": {
+            \"value\": \"blob.core.windows.net\"
         },
-        'dnsFqdnSuffix': {
-            'value': 'cloudapp.azure.com'
+        \"dnsFqdnSuffix\": {
+            \"value\": \"cloudapp.azure.com\"
         },
-        'storageAccountName': {
-            'value': 'broyalci'
+        \"storageAccountName\": {
+            \"value\": \"broyalci\"
         },
-        'storageAccountKey': {
-            'value': '"$STORAGE_ACCOUNT_KEY"'
+        \"storageAccountKey\": {
+            \"value\": \""$STORAGE_ACCOUNT_KEY"\"
         },
-        'storageContainerName': {
-            'value': 'hotfix'
+        \"storageContainerName\": {
+            \"value\": \"hotfix\"
         }
     }
 }
