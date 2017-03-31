@@ -11,7 +11,7 @@ az group create --name $resource_group_name --location $location
 
 #get azuredeploy.parameters.json and add STORAGE_ACCOUNT_KEY
 parameters="
-\"\{
+\"{
     \"prefix\": {
         \"value\": \"broyal\"
     },
@@ -42,9 +42,9 @@ parameters="
     \"storageContainerName\": {
         \"value\": \"hotfix\"
     }
-\}\"
+}\"
 "
-
+echo $parameters
 az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g $resource_group_name
 
 #cleanup
