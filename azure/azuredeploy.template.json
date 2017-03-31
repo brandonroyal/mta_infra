@@ -1,0 +1,36 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "prefix": {
+      "value": "<prefix>"
+    },
+    "adminUsername": {
+      "value": "docker"
+    },
+    "adminPassword": {
+      "value": "<adminPassword>"
+    },
+    "sshPublicKey": {
+      "value": "<sshPublicKey>"
+    },
+    "vmSize": {
+        "value": "Standard_DS2"
+    },
+    "storageDomain": {
+      "value": "blob.core.windows.net"
+    },
+    "dnsFqdnSuffix": {
+      "value": "cloudapp.azure.com"
+    },
+    "storageAccountName": {
+      "value": "<storageAccountName>"
+    },
+    "storageAccountKey": {
+      "value": "<storageAccountKey>"
+    },
+    "storageContainerName": {
+      "value": "hotfix"
+    }
+  }
+}
