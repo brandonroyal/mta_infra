@@ -10,8 +10,8 @@ az group create --name $resource_group_name --location $location
 search="{{storageAccountKey}}"
 
 echo $PWD
-sed -i "" "s/${search}/${storageAccountKey}/g" ./azuredeploy.parameters.json
-cat ./tests/azure/azuredeploy.parameters.json
+sed -i "" "s/${search}/${storageAccountKey}/g" $PWD/tests/azure/azuredeploy.parameters.json
+cat $PWD/tests/azure/azuredeploy.parameters.json
 
 #cleanup
 az group delete -n $resource_group_name -y
