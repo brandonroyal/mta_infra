@@ -49,7 +49,7 @@ parameters="
 }
 "
 
-az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g 
+az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g $resource_group_name
 
 #cleanup
 az group delete -n $resource_group_name -y
