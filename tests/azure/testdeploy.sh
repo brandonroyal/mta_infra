@@ -6,3 +6,9 @@ export location=eastus
 export storage_account_name=broyalmta
 
 az group create --name $resource_group_name --location $location
+
+sed -i "s/{{storageAccountKey}}/${storageAccountKey}/g" azuredeploy.template.json > azuredeploy.parameters.json
+cat azuredeploy.parameters.json
+
+#cleanup
+az group delete --name $resource_group_name
