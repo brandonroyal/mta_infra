@@ -50,8 +50,9 @@ parameters="
 echo "starting deployment"
 echo "exit code: $?"
 az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g $resource_group_name
-echo "exit code: $?"
 
-#cleanup
-echo "cleaning up deployment"
-az group delete -n $resource_group_name -y
+#force exit code from deployment failure
+if [$? -ne 0]
+then
+    exit $?
+if
