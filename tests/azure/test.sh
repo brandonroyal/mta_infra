@@ -55,4 +55,4 @@ az group deployment create --template-file ./azure/azuredeploy.json --parameters
 if [$? -ne 0]
 then
     exit $?
-if
+fi
