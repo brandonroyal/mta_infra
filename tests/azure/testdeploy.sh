@@ -11,7 +11,7 @@ az group create --name $resource_group_name --location $location
 
 #get azuredeploy.parameters.json and add STORAGE_ACCOUNT_KEY
 parameters="
-\"{
+{
     \"prefix\": {
         \"value\": \"broyal\"
     },
@@ -22,7 +22,7 @@ parameters="
         \"value\": \"P@ssword1\"
     },
     \"sshPublicKey\": {
-        value\": \"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDdqs3DLhpiXMSOTgSk0X7pjOE8Jk502pX1qERGACbuArBFUGxBAjBl5c3wdenC/P8oYtvHFGN0syVCaqxsn87vp//IWTzF2LIOySJQ55N9Wq2SpNEiEOxtgrF5O4EhC8pwQphEwovChwVijOJEQl0WX2HhGZBTiDmTFrCVl22S0CCHymthkDtFsiE5LCXMbZvOk5olZEAzLymrO1SKjHsgQruZAFFWSxoyUPn2SmmD2Br6SQe9sQr4k+CCQ5q3NYXxsj0tpbnNIpKg85ozsQ9CUgc+06juEqahuj1p5DLkbZfHz0zlmPd3wbM02YLQNX8ZxdLBF4RLVSv4dW4NwPxf broyal@docker.com\"
+        \"value\": \"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDdqs3DLhpiXMSOTgSk0X7pjOE8Jk502pX1qERGACbuArBFUGxBAjBl5c3wdenC/P8oYtvHFGN0syVCaqxsn87vp//IWTzF2LIOySJQ55N9Wq2SpNEiEOxtgrF5O4EhC8pwQphEwovChwVijOJEQl0WX2HhGZBTiDmTFrCVl22S0CCHymthkDtFsiE5LCXMbZvOk5olZEAzLymrO1SKjHsgQruZAFFWSxoyUPn2SmmD2Br6SQe9sQr4k+CCQ5q3NYXxsj0tpbnNIpKg85ozsQ9CUgc+06juEqahuj1p5DLkbZfHz0zlmPd3wbM02YLQNX8ZxdLBF4RLVSv4dW4NwPxf broyal@docker.com\"
     },
     \"vmSize\": {
         \"value\": \"Standard_DS2\"
@@ -42,10 +42,10 @@ parameters="
     \"storageContainerName\": {
         \"value\": \"hotfix\"
     }
-}\"
+}
 "
 echo $parameters > parameters.json
-az group deployment create --template-file ./azure/azuredeploy.json --parameters @parameters.json -g $resource_group_name
+az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g $resource_group_name
 
 #cleanup
 az group delete -n $resource_group_name -y
