@@ -1,12 +1,15 @@
 #/bin/bash
-az login  --service-principal -u $u -p $p --tenant $tenant
+echo "logging in"
+az login  --service-principal -u $u -p $p --tenant $tenant -o table
 
 #set variables
+echo "setting variables"
 export resource_group_name=broyal_ci$CIRCLE_BUILD_NUM
 export location=eastus
 export storage_account_name=broyalmta
 
 #create resource group
+echo "creating resource group"
 az group create --name $resource_group_name --location $location
 
 #get azuredeploy.parameters.json and add STORAGE_ACCOUNT_KEY
@@ -44,8 +47,11 @@ parameters="
     }
 }
 "
-echo $parameters > parameters.json
+echo "starting deployment"
+echo "exit code: $?"
 az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g $resource_group_name
+echo "exit code: $?"
 
 #cleanup
+echo "cleaning up deployment"
 az group delete -n $resource_group_name -y
