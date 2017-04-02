@@ -50,4 +50,4 @@ parameters="
 }
 "
 echo "starting deployment"
-az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name
+az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name --debug

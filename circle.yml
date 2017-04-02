@@ -10,5 +10,7 @@ machine:
 
 test:
   override:
-    - sh ./tests/azure/test.sh
-    - sh ./tests/azure/cleanup.sh
+    - sh ./tests/azure/test.sh:
+      timeout: 1200000
+    - sh ./tests/azure/cleanup.sh:
+      timeout: 1200000
