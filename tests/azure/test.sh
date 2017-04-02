@@ -50,8 +50,4 @@ parameters="
 }
 "
 echo "starting deployment"
-echo "exit code: $?"
-az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g $resource_group_name
-
-#force exit code from deployment failure
-#exit $?
+az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name
