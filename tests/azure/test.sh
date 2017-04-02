@@ -45,9 +45,9 @@ parameters="
         \"value\": \""$STORAGE_ACCOUNT_KEY"\"
     },
     \"storageContainerName\": {
-        \"value\": \"hotfix\"
+        \"value\": \"test\"
     }
 }
 "
 echo "starting deployment"
-az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name --debug
+az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name --verbose
