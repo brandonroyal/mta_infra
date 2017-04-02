@@ -14,7 +14,7 @@ export storage_account_name=broyalmta
 echo "creating resource group"
 az group create --name $resource_group_name --location $location
 
-#get azuredeploy.parameters.json and add STORAGE_ACCOUNT_KEY
+#add STORAGE_ACCOUNT_KEY to parameters
 parameters="
 {
     \"prefix\": {
@@ -49,5 +49,11 @@ parameters="
     }
 }
 "
+
+#perform test deployment
 echo "starting deployment"
 az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name --verbose
+
+#test UCP and DTR web endpoints
+echo 'testing UCP + DTR endpoints'
+az network public-ip list -g $resource_group_name --query "[?contains(name,'_mgr_')].{ipAddress: ipAddress}" -o table | tail -n +3 | xargs -I % curl -kI https://%
