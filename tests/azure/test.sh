@@ -1,4 +1,6 @@
 #/bin/bash
+set -e
+
 echo "logging in"
 az login  --service-principal -u $u -p $p --tenant $tenant -o table
 
@@ -52,5 +54,4 @@ echo "exit code: $?"
 az group deployment create --template-file ./azure/azuredeploy.json --parameters $parameters -g $resource_group_name
 
 #force exit code from deployment failure
-echo "exit code: $?"
-exit $?
+#exit $?
