@@ -3,9 +3,8 @@ machine:
   python:
     version: 3.5.2
   post:
-    - pip install --upgrade pip
-    - pip install --user azure-cli
-    - PATH="$PATH:/usr/local/lib/python2.7/site-packages"
+    - echo "deb https://apt-mo.trafficmanager.net/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+    - sudo apt-get update && sudo apt-get install azure-cli
 
 test:
   override:
