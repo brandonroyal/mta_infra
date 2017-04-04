@@ -819,8 +819,7 @@
         "settings": {
             "fileUris": [
               "[concat(parameters('artifactBaseUri'), 'postjoin-worker.ps1')]",
-              "[concat(parameters('artifactBaseUri'), 'configure-worker.ps1')]",
-              "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/', parameters('storageContainerName'), '/WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe')]"
+              "[concat(parameters('artifactBaseUri'), 'configure-worker.ps1')]"
             ],
             "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DTRFQDN ', variables('manager_sub0').dtrHostname)]"
         },
