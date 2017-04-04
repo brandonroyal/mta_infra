@@ -4,6 +4,7 @@ machine:
     version: 3.5.2
   post:
     - pip install --user azure-cli
+    - exec -l $SHELL
 
 test:
   override:
