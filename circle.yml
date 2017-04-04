@@ -14,3 +14,9 @@ test:
         timeout: 1200000
     # - sh ./tests/azure/cleanup.sh:
     #     timeout: 1200000
+
+deployment:
+  production:
+    branch: master
+    commands:
+      - sh ./build/publish_files.sh

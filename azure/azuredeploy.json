@@ -788,7 +788,7 @@
             "fileUris": [
               "[concat(parameters('artifactBaseUri'), 'interfaces')]",
               "[concat(parameters('artifactBaseUri'), 'set-static-ip.sh')]",
-              "[concat(parameters('artifactBaseUri'), 'interfainstall-docker.shces')]",
+              "[concat(parameters('artifactBaseUri'), 'install-docker.sh')]",
               "[concat(parameters('artifactBaseUri'), 'install-ucp-mgr.sh')]",
               "[concat(parameters('artifactBaseUri'), 'install-dtr-mgr.sh')]"
             ],
@@ -821,7 +821,7 @@
                 "[concat(parameters('artifactBaseUri'), 'postjoin-worker.ps1')]",
                 "[concat(parameters('artifactBaseUri'), 'configure-worker.ps1')]"
               ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DTRFQDN ', variables('manager_sub0').dtrHostname)]"
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DTRFQDN ', variables('manager_sub0').dtrHostname, ' -OverlayStorageAccountName ', parameters('storageAccountName'), ' -OverlayStorageAccountKey ', parameters('storageAccountKey'), ' -OverlayContainerName ', parameters('storageContainerName'))]"
           }
         }
     }
