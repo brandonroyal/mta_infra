@@ -3,15 +3,16 @@ machine:
   python:
     version: 3.5.2
   post:
+    - pip install --upgrade pip
     - pip install --user azure-cli
-    - exec -l $SHELL
+    - echo $PATH
 
 test:
   override:
     - sh ./tests/azure/test.sh:
         timeout: 1200000
-    # - sh ./tests/azure/cleanup.sh:
-    #     timeout: 1200000
+    - sh ./tests/azure/cleanup.sh:
+        timeout: 1200000
 
 deployment:
   production:
