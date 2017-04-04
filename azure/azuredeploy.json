@@ -94,6 +94,10 @@
     },
     "storageContainerName": {
       "type": "string"
+    },
+    "artifactBaseUri": {
+      "type": "string",
+      "defaultValue": "Standard_DS2"
     }
   },
   "variables": {
@@ -783,11 +787,11 @@
             "autoUpgradeMinorVersion": true,
           "settings": {
             "fileUris": [
-              "https://gist.githubusercontent.com/BrandonRoyal/4f39394ac2bd6fc429275f3af2510e86/raw/interfaces",
-              "https://gist.githubusercontent.com/BrandonRoyal/1069856dbab581676add64ad835e808a/raw/set-static-ip.sh",
-              "https://gist.githubusercontent.com/BrandonRoyal/0c4dc0b91ff56f54a7d7692c6d63ffe5/raw/install-docker.sh",
-              "https://gist.githubusercontent.com/BrandonRoyal/254c3c20426c133a0ed6e6a3b2a85897/raw/install-ucp-mgr.sh",
-              "https://gist.githubusercontent.com/BrandonRoyal/ac231af8d12f31528f3c2e168eba96e9/raw/install-dtr-mgr.sh"
+              "[concat(parameters('artifactBaseUri'), 'interfaces')]",
+              "[concat(parameters('artifactBaseUri'), 'set-static-ip.sh')]",
+              "[concat(parameters('artifactBaseUri'), 'interfainstall-docker.shces')]",
+              "[concat(parameters('artifactBaseUri'), 'install-ucp-mgr.sh')]",
+              "[concat(parameters('artifactBaseUri'), 'install-dtr-mgr.sh')]"
             ],
             "commandToExecute": "[concat('export HOST_IP=10.0.144.', add(5, copyindex()), '; export UCP_PUBLIC_FQDN=', variables('manager_sub0').ucpHostname, '; export DTR_PUBLIC_FQDN=', variables('manager_sub0').dtrHostname, '; export UCP_ADMIN_PASSWORD=', parameters('adminPassword'), '; ./set-static-ip.sh; ./install-docker.sh; ./install-ucp-mgr.sh; ./install-dtr-mgr.sh;')]"
           }
@@ -815,13 +819,11 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
             "fileUris": [
-              "https://gist.githubusercontent.com/BrandonRoyal/9cb6cb53c2069922be4c4a1ec552099b/raw/postjoin-worker.ps1",
-              "https://gist.githubusercontent.com/BrandonRoyal/43b64df3f7b1f52c654e6f2ae0b3c33c/raw/upgrade-docker.ps1",
-              "https://gist.githubusercontent.com/BrandonRoyal/316dd5968e0787c1151f8be9ab786cad/raw/ContainerNetworkingCleanScript.ps1",
-              "https://gist.githubusercontent.com/BrandonRoyal/e65d299ca489735bf2d8764596ab55fa/raw/configure-worker.ps1",
+              "[concat(parameters('artifactBaseUri'), 'postjoin-worker.ps1')]",
+              "[concat(parameters('artifactBaseUri'), 'configure-worker.ps1')]",
               "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/', parameters('storageContainerName'), '/WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe')]"
             ],
-            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1')]"
+            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DTRFQDN ', variables('manager_sub0').dtrHostname)]"
         },
           "protectedSettings": {
               "storageAccountName": "[parameters('storageAccountName')]",

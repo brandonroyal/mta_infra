@@ -6,13 +6,24 @@ az login  --service-principal -u $u -p $p --tenant $tenant -o table
 
 #set variables
 echo "setting variables"
-export resource_group_name=broyal_ci$CIRCLE_BUILD_NUM
-export location=eastus
-export storage_account_name=broyalmta
+export resource_group_name="broyal_ci$CIRCLE_BUILD_NUM"
+export location="eastus"
+export storage_account_name="broyalmta$CIRCLE_BUILD_NUM"
+export artifactBaseUri="https://$storage_account_name.blob.core.windows.net/artifacts/"
 
 #create resource group
 echo "creating resource group"
 az group create --name $resource_group_name --location $location
+
+#create storage account and container
+az storage account create --name $storage_account_name --location $location --resource-group $resource_group_name --sku Standard_LRS
+connectionString=$(az storage account show-connection-string --name $storage_account_name --resource-group $resource_group_name --key primary --query connectionString)
+az storage container create --name artifacts --public-access blob --connection-string $connectionString
+
+#upload script assets
+for filepath in ./azure/scripts/*; do
+    az storage blob upload -f $filepath -c artifacts -n $(basename $filepath) --connection-string $connectionString
+done
 
 #add STORAGE_ACCOUNT_KEY to parameters
 parameters="
@@ -46,6 +57,9 @@ parameters="
     },
     \"storageContainerName\": {
         \"value\": \"test\"
+    },
+    \"artifactBaseUri\": {
+        \"value\": \""$artifactBaseUri"\"
     }
 }
 "

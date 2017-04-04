@@ -2,7 +2,8 @@
 Param(
   [switch] $SkipEngineUpgrade,
   [string] $ArtifactPath = ".",
-  [string] $DockerVersion = "17.04.0-ce-rc1"
+  [string] $DockerVersion = "17.04.0-ce-rc1",
+  [string] $DTRFQDN
 )
 
 #Variables
@@ -53,6 +54,10 @@ function Install-OverlayPrivatePackage() {
     .\WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe /q
 }
 
+function Set-DtrHostnameEnvironmentVariable() {
+    [Environment]::SetEnvironmentVariable("DTR_FQDN", "$DTRFQDN", "User")
+}
+
 #Start Script
 $ErrorActionPreference = "Stop"
 try
@@ -75,6 +80,9 @@ try
 
     Write-Host "Install Overlay Package"
     Install-OverlayPrivatePackage
+
+    Write-Host "Set DTR FQDN Environment Variable"
+    Set-DtrHostnameEnvironmentVariable
 
     Write-Host "Restarting machine"
     Stop-Transcript
