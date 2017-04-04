@@ -66,7 +66,7 @@ parameters="
 
 #perform test deployment
 echo "starting deployment"
-az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name --debug
+az group deployment create --template-file ./azure/azuredeploy.json --parameters "$parameters" -g $resource_group_name --verbose
 
 #test UCP and DTR web endpoints
 echo 'testing UCP + DTR endpoints'
