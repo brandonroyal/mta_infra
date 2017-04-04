@@ -96,8 +96,7 @@
       "type": "string"
     },
     "artifactBaseUri": {
-      "type": "string",
-      "defaultValue": "Standard_DS2"
+      "type": "string"
     }
   },
   "variables": {
