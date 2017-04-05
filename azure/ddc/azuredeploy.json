@@ -97,7 +97,7 @@
     },
     "artifactBaseUri": {
       "type": "string",
-      "defaultValue": "https://mtapoc.blob.core.windows.net/v200/"
+      "defaultValue": "https://mtapoc.blob.core.windows.net/v200/" 
     }
   },
   "variables": {
