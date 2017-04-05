@@ -2,12 +2,26 @@
 Param(
   [switch] $SkipEngineUpgrade,
   [string] $ArtifactPath = ".",
-  [string] $DockerVersion = "17.04.0-ce-rc1"
+  [string] $DockerVersion = "17.04.0-ce-rc1",
+  [string] $DTRFQDN,
+  [string] $OverlayStorageAccountName,
+  [string] $OverlayStorageAccountKey,
+  [string] $OverlayContainerName,
+  [string] $OverlayFileName = "WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe"
 )
 
 #Variables
 $Date = Get-Date -Format "yyyy-MM-dd HHmmss"
 $DockerPath = "C:\Program Files\Docker"
+
+function Install-AzureRm () {
+    Install-Module -Name AzureRM -RequiredVersion 1.2.9 -Force
+}
+
+function Save-OverlayPackage () {
+    $ctx = New-AzureStorageContext -StorageAccountName $OverlayStorageAccountName -StorageAccountKey $OverlayStorageAccountKey
+    Get-AzureStorageBlobContent -Blob $OverlayFileName -Container $OverlayContainerName -Destination $ArtifactPath -Context $ctx
+}
 
 function UpgradeDockerEngine () {
     #Get Docker Engine from Master Builds
@@ -53,11 +67,21 @@ function Install-OverlayPrivatePackage() {
     .\WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe /q
 }
 
+function Set-DtrHostnameEnvironmentVariable() {
+    [Environment]::SetEnvironmentVariable("DTR_FQDN", "$DTRFQDN", "User")
+}
+
 #Start Script
 $ErrorActionPreference = "Stop"
 try
 {
     Start-Transcript -path "C:\ProgramData\Docker\configure-worker $Date.log" -append
+
+    Write-Host "Install AzureRM"
+    Install-AzureRm
+
+    Write-Host "Downloading Overlay Package"
+    Save-OverlayPackage
     
     if (-not ($SkipEngineUpgrade.IsPresent)) {
         Write-Host "Upgrading Docker Engine"
@@ -75,6 +99,9 @@ try
 
     Write-Host "Install Overlay Package"
     Install-OverlayPrivatePackage
+
+    Write-Host "Set DTR FQDN Environment Variable"
+    Set-DtrHostnameEnvironmentVariable
 
     Write-Host "Restarting machine"
     Stop-Transcript
