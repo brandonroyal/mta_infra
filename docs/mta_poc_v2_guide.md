@@ -73,10 +73,10 @@ az storage blob upload -f $package_installer_path -c hotfix -n WS2016-KB123456-x
 Download parameters template
 ```
 # Windows Client
-Invoke-WebRequest -O azuredeploy.parameters.json https://gist.githubusercontent.com/BrandonRoyal/c27f4073aac545472e62d05803616611/raw/azuredeploy.template.json
+Invoke-WebRequest -O azuredeploy.parameters.json https://mtapoc.blob.core.windows.net/v200/azuredeploy.template.json
 
 # OSX/Linux Client
-wget -O azuredeploy.parameters.json https://gist.githubusercontent.com/BrandonRoyal/c27f4073aac545472e62d05803616611/raw/azuredeploy.template.json
+wget -O azuredeploy.parameters.json https://mtapoc.blob.core.windows.net/v200/azuredeploy.template.json
 ```
 Open azuredeploy.parameters.json with your preferred text editor and change the following values:
 * `<prefix>` : Name that will prefix all Azure assets created by template (NOTE: Only letters and numbers, no special characters, 7 or less total characters)
@@ -128,7 +128,7 @@ Open azuredeploy.parameters.json with your preferred text editor and change the 
 
 ## Deploy using template
 ```
-$ az group deployment create --template-uri https://gist.githubusercontent.com/BrandonRoyal/f027db3825d48596fe176c46946fa5c4/raw/azuredeploy.json --parameters @azuredeploy.parameters.json -g $resource_group_name
+$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v200/azuredeploy.json --parameters @azuredeploy.parameters.json -g $resource_group_name
 ```
 _NOTE: Deployment process takes ~10-15 minutes to complete.  You can check your deployment process at [portal.azure.com](https://portal.azure.com)_
 
