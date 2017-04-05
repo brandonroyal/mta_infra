@@ -10,13 +10,7 @@ if [ -z "$UCP_ADMIN_PASSWORD" ]; then
 fi
 
 if [ -z "$UCP_HOST_ADDRESS" ]; then
-    export eth1=$(ifconfig -s | grep 'eth1');
-    if [ -z "$eth1" ];
-        then
-            eval UCP_HOST_ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1)
-        else
-            eval UCP_HOST_ADDRESS=$(ifconfig eth1 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1)      
-    fi
+    eval UCP_HOST_ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1)
 fi
 
 echo "UCP_PUBLIC_FQDN=$UCP_PUBLIC_FQDN"
