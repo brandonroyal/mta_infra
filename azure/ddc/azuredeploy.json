@@ -71,6 +71,7 @@
     },
     "storageDomain":{
       "type": "string",
+      "defaultValue": "blob.core.windows.net",
       "allowedValues": [
         "blob.core.windows.net",
         "blob.core.usgovcloudapi.net"
@@ -81,6 +82,7 @@
     },
     "dnsFqdnSuffix":{
       "type": "string",
+      "defaultValue": "cloudapp.azure.com",
       "allowedValues": [
         "cloudapp.azure.com",
         "cloudapp.usgovcloudapi.net"
