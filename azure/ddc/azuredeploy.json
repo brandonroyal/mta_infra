@@ -28,7 +28,9 @@
       "type": "string",
       "metadata": {
         "description": "Prefix used for all resources"
-      }
+      },
+      "minLength": 3,
+      "maxLength": 7
     },
     "adminUsername": {
       "type": "string",
