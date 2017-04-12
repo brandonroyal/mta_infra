@@ -69,7 +69,7 @@ function Set-DtrHostnameEnvironmentVariable() {
 function Install-WindowsUpdates() {
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
     Install-Module PSWindowsUpdate -Force
-    Get-WUInstall -WindowsUpdate -KBArticleID KB4015217 -AcceptAll
+    Get-WUInstall -WindowsUpdate -KBArticleID KB4015217 -AcceptAll –AutoReboot
 }
 
 #Start Script
