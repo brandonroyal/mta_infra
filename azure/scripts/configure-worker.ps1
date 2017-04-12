@@ -3,27 +3,21 @@ Param(
   [switch] $SkipEngineUpgrade,
   [string] $ArtifactPath = ".",
   [string] $DockerVersion = "17.04.0-ce-rc1",
-  [string] $DTRFQDN,
-  [string] $OverlayStorageAccountName,
-  [string] $OverlayStorageAccountKey,
-  [string] $OverlayContainerName,
-  [string] $OverlayFileName = "WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe"
+  [string] $DTRFQDN
 )
 
 #Variables
 $Date = Get-Date -Format "yyyy-MM-dd HHmmss"
 $DockerPath = "C:\Program Files\Docker"
 
-function Install-AzureRm () {
-    Install-Module -Name AzureRM -RequiredVersion 1.2.9 -Force
-}
+
 
 function Save-OverlayPackage () {
     $ctx = New-AzureStorageContext -StorageAccountName $OverlayStorageAccountName -StorageAccountKey $OverlayStorageAccountKey
     Get-AzureStorageBlobContent -Blob $OverlayFileName -Container $OverlayContainerName -Destination $ArtifactPath -Context $ctx
 }
 
-function UpgradeDockerEngine () {
+function Install-LatestDockerEngine () {
     #Get Docker Engine from Master Builds
     if ((-not (Test-Path (Join-Path $ArtifactPath "docker.exe"))) -and (-not (Test-Path (Join-Path $ArtifactPath "dockerd.exe")))) {
         Invoke-WebRequest -Uri "https://test.docker.com/builds/Windows/x86_64/docker-$DockerVersion.zip" -OutFile (Join-Path $ArtifactPath "docker-$DockerVersion.zip")
@@ -69,6 +63,13 @@ function Install-OverlayPrivatePackage() {
 
 function Set-DtrHostnameEnvironmentVariable() {
     [Environment]::SetEnvironmentVariable("DTR_FQDN", "$DTRFQDN", "User")
+    Write-Host "DTR Hostname environment variable set to: $env:DTR_FQDN"
+}
+
+function Install-WindowsUpdates() {
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    Install-Module PSWindowsUpdate -Force
+    Get-WUInstall -WindowsUpdate -KBArticleID KB4015217 -AcceptAll
 }
 
 #Start Script
@@ -76,20 +77,11 @@ $ErrorActionPreference = "Stop"
 try
 {
     Start-Transcript -path "C:\ProgramData\Docker\configure-worker $Date.log" -append
-
-    Write-Host "Install AzureRM"
-    Install-AzureRm
-
-    Write-Host "Downloading Overlay Package"
-    Save-OverlayPackage
     
     if (-not ($SkipEngineUpgrade.IsPresent)) {
         Write-Host "Upgrading Docker Engine"
-        UpgradeDockerEngine
+        Install-LatestDockerEngine
     }
-
-    Write-Host "Enabling Test Mode"
-    Enable-TestMode
 
     Write-Host "Disabling Firewall"
     Disable-Firewall
@@ -97,11 +89,11 @@ try
     Write-Host "Enabling Remote Powershell"
     Enable-RemotePowershell
 
-    Write-Host "Install Overlay Package"
-    Install-OverlayPrivatePackage
-
     Write-Host "Set DTR FQDN Environment Variable"
     Set-DtrHostnameEnvironmentVariable
+
+    Write-Host "Install Overlay Package"
+    Install-WindowsUpdates
 
     Write-Host "Restarting machine"
     Stop-Transcript

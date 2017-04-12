@@ -88,15 +88,6 @@
         "cloudapp.usgovcloudapi.net"
       ]
     },
-    "storageAccountName": {
-      "type": "string"
-    },
-    "storageAccountKey": {
-      "type": "string"
-    },
-    "storageContainerName": {
-      "type": "string"
-    },
     "artifactBaseUri": {
       "type": "string",
       "defaultValue": "https://mtapoc.blob.core.windows.net/v200/" 
@@ -822,7 +813,7 @@
                 "[concat(parameters('artifactBaseUri'), 'postjoin-worker.ps1')]",
                 "[concat(parameters('artifactBaseUri'), 'configure-worker.ps1')]"
               ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DTRFQDN ', variables('manager_sub0').dtrHostname, ' -OverlayStorageAccountName ', parameters('storageAccountName'), ' -OverlayStorageAccountKey ', parameters('storageAccountKey'), ' -OverlayContainerName ', parameters('storageContainerName'))]"
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DTRFQDN ', variables('manager_sub0').dtrHostname)]"
           }
         }
     }
