@@ -155,7 +155,7 @@
       "lbProbe8082ID": "[concat(variables('worker_sub0').lbID,'/probes/tcp8082Probe')]"
     },
     "storageAccountName": "[concat(variables('prefix'),uniqueString(concat(resourceGroup().id, '0')))]",
-    "storageAccountType": "Standard_LRS",
+    "storageAccountType": "Premium_LRS",
     "storageDomainSuffix": "[concat('.', parameters('storageDomain'))]",
     "addressPrefix": "10.0.0.0/16",
     "subnetName": "Subnet",
@@ -702,8 +702,7 @@
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
-             "enabled": "true",
-             "storageUri": "[concat('http://',variables('storageAccountName'), variables('storageDomainSuffix'))]"
+             "enabled": "false"
           }
         }
       }
@@ -759,8 +758,7 @@
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
-             "enabled": "true",
-             "storageUri": "[concat('http://',variables('storageAccountName'),variables('storageDomainSuffix'))]"
+             "enabled": "false"
           }
         }
       }
