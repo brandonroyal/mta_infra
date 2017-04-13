@@ -75,7 +75,7 @@ az group create --name $resource_group_name --location $location
 
 ## Deploy using template
 ```
-$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v200/azuredeploy.json --parameters @azuredeploy.parameters.json -g $resource_group_name --verbose
+$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v201/azuredeploy.json --parameters @azuredeploy.parameters.json -g $resource_group_name --verbose
 ```
 _NOTE: Deployment process takes ~10-15 minutes to complete.  You can check your deployment process at [portal.azure.com](https://portal.azure.com)_
 
