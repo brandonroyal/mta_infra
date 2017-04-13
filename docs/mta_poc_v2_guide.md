@@ -3,26 +3,10 @@ The following instructions walk through deployment and configuration of Docker D
 
 # Prerequisites
 
-* Microsoft EEAP Access
 * Microsoft Azure Subscription
 * [Azure CLI 2.0 (Preview)](https://docs.microsoft.com/en-us/cli/azure/install-az-cli2)
 * SSH Client
-
-# Pre-Installation
-
-## Download Overlay Networking Hotfix
-
-1) Confirm receipt of Microsoft EEAP invitation email. Email will be sent from MSFTConn@microsoft.com. If email is not recieved, please check spam folder.
-
-2) Follow instructions provided in invitatation email to register for Microsoft Connect portal
-
-3) Login to Microsoft Connect, ensuring email is registered in Microsoft CCEP
-
-4) Browse to [https://connect.microsoft.com/WindowsServer/Downloads/DownloadDetails.aspx?DownloadID=63776](https://connect.microsoft.com/WindowsServer/Downloads/DownloadDetails.aspx?DownloadID=63776)
-
-5) Download file: *WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe*
-
-  _NOTE: In some cases you may need to extract file from a .zip.  Perform this **before** proceeding_
+* SSH RSA Key
 
 # Installation
 While the instructions are generally consistent between Windows and OSX/Linux clients, it's worth noting that some steps specify `# Windows Client` and `# OSX/Linux Client` commands. Please use the command most appropriate for your client.
@@ -37,14 +21,51 @@ az login
 # Windows Client
 $resource_group_name="<resource_group_name>" #Azure Resource Group name
 $location="<location>" #Azure Location (e.g. westus)
-$storage_account_name="<storage_account_name>" #Azure Storage Account name
-$package_installer_path=<C:\path\WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe>
+$prefix="<prefix>" #Prefix used in naming Azure components (NOTE: Only letters and numbers, no special characters, 7 or less characters)
+$adminPassword="<adminPassword>" #Admin password for VMs and Docker Datacenter admin accounts (NOTE: Must be complex and more than 8 characters. Do not use "$" or ";" characters)
+$sshPublicKey="<sshPublicKey>" #SSH rsa public key (used to access Linux manager node)
 
 # OSX/Linux Client
 export resource_group_name=<resource_group_name> #Azure Resource Group name
 export location=<location> #Azure Location (e.g. westus)
-export storage_account_name=<storage_account_name> #Azure Storage Account name
-export package_installer_path=</path/to/WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe>
+```
+## Configure Parameters
+```
+# Windows Client
+$parameters="
+{
+    \"prefix\": {
+        \"value\": \""$prefix"\"
+    },
+    \"adminUsername\": {
+        \"value\": \"docker\"
+    },
+    \"adminPassword\": {
+        \"value\": \""$adminPassword"\"
+    },
+    \"sshPublicKey\": {
+        \"value\": \""$sshPublicKey"\"
+    }
+}
+"
+
+# OSX/Linux Client
+export parameters="
+{
+    \"prefix\": {
+        \"value\": \""$prefix"\"
+    },
+    \"adminUsername\": {
+        \"value\": \"docker\"
+    },
+    \"adminPassword\": {
+        \"value\": \""$adminPassword"\"
+    },
+    \"sshPublicKey\": {
+        \"value\": \""$sshPublicKey"\"
+    }
+}
+"
 ```
 
 ## Create Azure Resource Group
@@ -52,83 +73,9 @@ export package_installer_path=</path/to/WS2016-KB123456-x64-InstallForTestingPur
 az group create --name $resource_group_name --location $location
 ```
 
-## Upload Overlay Networking Hotfix to Azure
-```
-az storage account create --name $storage_account_name --location $location --resource-group $resource_group_name --sku Standard_LRS
-```
-```
-# Windows
-$connectionString=$(az storage account show-connection-string --name $storage_account_name --resource-group $resource_group_name --key primary --query connectionString)
-
-# OSX/Linux Client
-export connectionString=$(az storage account show-connection-string --name $storage_account_name --resource-group $resource_group_name --key primary --query connectionString)
-```
-```
-az storage container create --name hotfix --connection-string $connectionString
-```
-```
-az storage blob upload -f $package_installer_path -c hotfix -n WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe --connection-string $connectionString
-```
-## Configure Parameters
-Download parameters template
-```
-# Windows Client
-Invoke-WebRequest -O azuredeploy.parameters.json https://mtapoc.blob.core.windows.net/v200/azuredeploy.template.json
-
-# OSX/Linux Client
-wget -O azuredeploy.parameters.json https://mtapoc.blob.core.windows.net/v200/azuredeploy.template.json
-```
-Open azuredeploy.parameters.json with your preferred text editor and change the following values:
-* `<prefix>` : Name that will prefix all Azure assets created by template (NOTE: Only letters and numbers, no special characters, 7 or less total characters)
-* `<adminPassword>` : Admin password for VMs and Docker Datacenter admin accounts (NOTE: Must be complex and more than 8 characters. Do not use "$" or ";" characters)
-* `<sshPublicKey>` : SSH public key (used to access Linux manager node)
-* `<storageAccountName>` : Storage account name provided in previous step (use `echo $storage_account_name` to print value)
-* `<storageAccountKey>` : Storage account key (use `az storage account show-connection-string --name $storage_account_name --resource-group $resource_group_name --key primary --query connectionString` and select string after `AccountKey=`)
-
-```
-# example azuredeploy.parameters.json
-
-{
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "prefix": {
-      "value": "broyal"
-    },
-    "adminUsername": {
-      "value": "docker"
-    },
-    "adminPassword": {
-      "value": "p@SSword123"
-    },
-    "sshPublicKey": {
-      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAQABDdqs3DLhpiXMSOTgSk0X7pjOE8Jk502pX1qERGACbuArUFBGxBAjBl5c3wdenC/P8oYtvHFGN0syVCaqxsn87vp//IWTzF2LIOySJQ55N9Wq2SpNEiEOxtgrF5O4EhC8pwQphEwovChwVijOJEQl0WX2HhGZBTiDmTFrCVl22S0CCHymthkDtFsiE5LCXMbZvOk5olZEAzLymrO1SKjHsgQruZAFFWSxoyUPn2SmmD2Br6SQe9sQr4k+CCQ5q3NYXxsj0tpbnNIpKg85ozsQ9CUgc+06juEqahuj1p5DLkbZfHz0zlmPd3wbM02YLQNX8ZxdLBF4RLVSv4dW4NwPxf email@example.com"
-    },
-    "vmSize": {
-        "value": "Standard_DS2"
-    },
-    "storageDomain": {
-      "value": "blob.core.windows.net"
-    },
-    "dnsFqdnSuffix": {
-      "value": "cloudapp.azure.com"
-    },
-    "storageAccountName": {
-      "value": "mtapocv2"
-    },
-    "storageAccountKey": {
-      "value": "i8sDhlsCtSYRmr8d8PtqKuYjLlURZb/O5d1sKDISF7SUF7rd8simM4dLArVZD8DjTAxNAr6PKnK3ez0pOuEFvA=="
-    },
-    "storageContainerName": {
-      "value": "hotfix"
-    }
-  }
-}
-```
-
 ## Deploy using template
 ```
-$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v200/azuredeploy.json --parameters @azuredeploy.parameters.json -g $resource_group_name
+$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v201/azuredeploy.json --parameters @azuredeploy.parameters.json -g $resource_group_name --verbose
 ```
 _NOTE: Deployment process takes ~10-15 minutes to complete.  You can check your deployment process at [portal.azure.com](https://portal.azure.com)_
 
