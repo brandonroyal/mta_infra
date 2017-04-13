@@ -10,13 +10,6 @@ Param(
 $Date = Get-Date -Format "yyyy-MM-dd HHmmss"
 $DockerPath = "C:\Program Files\Docker"
 
-
-
-function Save-OverlayPackage () {
-    $ctx = New-AzureStorageContext -StorageAccountName $OverlayStorageAccountName -StorageAccountKey $OverlayStorageAccountKey
-    Get-AzureStorageBlobContent -Blob $OverlayFileName -Container $OverlayContainerName -Destination $ArtifactPath -Context $ctx
-}
-
 function Install-LatestDockerEngine () {
     #Get Docker Engine from Master Builds
     if ((-not (Test-Path (Join-Path $ArtifactPath "docker.exe"))) -and (-not (Test-Path (Join-Path $ArtifactPath "dockerd.exe")))) {
@@ -31,10 +24,6 @@ function Install-LatestDockerEngine () {
     Copy-Item "$ArtifactPath\docker\dockerd.exe" "$DockerPath\dockerd.exe" -Force
     Copy-Item "$ArtifactPath\docker\docker.exe" "$DockerPath\docker.exe" -Force
     Start-Service docker
-}
-
-function Enable-TestMode() {
-    bcdedit -set testsigning on
 }
 
 function Disable-Firewall () {
@@ -56,11 +45,6 @@ function Enable-RemotePowershell () {
     Set-Item wsman:\localhost\client\trustedhosts * -Force
 }
 
-function Install-OverlayPrivatePackage() {
-    # --Install new swarm/overlay package--
-    .\WS2016-KB123456-x64-InstallForTestingPurposesOnly-V2.exe /q
-}
-
 function Set-DtrHostnameEnvironmentVariable() {
     [Environment]::SetEnvironmentVariable("DTR_FQDN", "$DTRFQDN", "User")
     Write-Host "DTR Hostname environment variable set to: $env:DTR_FQDN"
@@ -69,7 +53,7 @@ function Set-DtrHostnameEnvironmentVariable() {
 function Install-WindowsUpdates() {
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
     Install-Module PSWindowsUpdate -Force
-    Get-WUInstall -WindowsUpdate -KBArticleID KB4015217 -AcceptAll –AutoReboot
+    Get-WUInstall -WindowsUpdate -KBArticleID KB4015217 -AcceptAll -AutoReboot
 }
 
 #Start Script
