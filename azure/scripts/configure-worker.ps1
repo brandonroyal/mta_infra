@@ -10,6 +10,10 @@ Param(
 $Date = Get-Date -Format "yyyy-MM-dd HHmmss"
 $DockerPath = "C:\Program Files\Docker"
 
+function Disable-RealTimeMonitoring () {
+    Set-MpPreference -DisableRealtimeMonitoring $true
+}
+
 function Install-LatestDockerEngine () {
     #Get Docker Engine from Master Builds
     if ((-not (Test-Path (Join-Path $ArtifactPath "docker.exe"))) -and (-not (Test-Path (Join-Path $ArtifactPath "dockerd.exe")))) {
@@ -61,6 +65,9 @@ $ErrorActionPreference = "Stop"
 try
 {
     Start-Transcript -path "C:\ProgramData\Docker\configure-worker $Date.log" -append
+
+    Write-Host "Disabling Real Time Monitoring"
+    Disable-RealTimeMonitoring
     
     if (-not ($SkipEngineUpgrade.IsPresent)) {
         Write-Host "Upgrading Docker Engine"
