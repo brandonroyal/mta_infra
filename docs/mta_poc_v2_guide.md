@@ -28,6 +28,9 @@ $sshPublicKey="<sshPublicKey>" #SSH rsa public key (used to access Linux manager
 # OSX/Linux Client
 export resource_group_name=<resource_group_name> #Azure Resource Group name
 export location=<location> #Azure Location (e.g. westus)
+export prefix="<prefix>" #Prefix used in naming Azure components (NOTE: Only letters and numbers, no special characters, 7 or less characters)
+export adminPassword="<adminPassword>" #Admin password for VMs and Docker Datacenter admin accounts (NOTE: Must be complex and more than 8 characters. Do not use "$" or ";" characters)
+export sshPublicKey="<sshPublicKey>" #SSH rsa public key (used to access Linux manager node)(i.e. `cat ~/.ssh/id_rsa.pub`)
 ```
 ## Configure Parameters
 ```
@@ -75,7 +78,7 @@ az group create --name $resource_group_name --location $location
 
 ## Deploy using template
 ```
-$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v201/azuredeploy.json --parameters @azuredeploy.parameters.json -g $resource_group_name --verbose
+$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v201/azuredeploy.json --parameters "$parameters" -g $resource_group_name --verbose
 ```
 _NOTE: Deployment process takes ~10-15 minutes to complete.  You can check your deployment process at [portal.azure.com](https://portal.azure.com)_
 
