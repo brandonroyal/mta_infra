@@ -19,5 +19,5 @@ echo "UCP_HOST_ADDRESS=$UCP_HOST_ADDRESS"
 #install UCP
 docker run --rm --name ucp \
   -v /var/run/docker.sock:/var/run/docker.sock \
-   docker/ucp:2.1.1 \
+   docker/ucp:2.1.3 \
    install --enable-windows --host-address $UCP_HOST_ADDRESS --san $UCP_PUBLIC_FQDN --admin-password $UCP_ADMIN_PASSWORD --debug
