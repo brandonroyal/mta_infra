@@ -419,7 +419,7 @@
             "name": "LoadBalancerFrontEndDtr",
             "properties": {
               "publicIPAddress": {
-                "id": "[variables('manager_sub0').]"
+                "id": "[variables('manager_sub0').publicIPAddressIDApp]"
               }
             }
           }
