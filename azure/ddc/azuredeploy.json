@@ -218,7 +218,7 @@
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('manager').publicIPAddressNameDtr]",
+      "name": "[variables('manager').publicIPAddressNameApp]",
       "location": "[resourceGroup().location]",
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
