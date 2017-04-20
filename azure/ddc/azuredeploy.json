@@ -125,6 +125,7 @@
     "manager_sub1":{
       "frontEndIPConfigIDUcp": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndUcp')]",
       "frontEndIPConfigIDDtr": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndDtr')]",
+      "frontEndIPConfigIDApp": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndApp')]",
       "lbPoolID": "[concat(variables('manager_sub0').lbID,'/backendAddressPools/BackendPool1')]",
       "lbDtrPoolID": "[concat(variables('manager_sub0').lbID,'/backendAddressPools/BackendPool2')]",
       "lbProbeID": "[concat(variables('manager_sub0').lbID,'/probes/ucp')]"
@@ -416,7 +417,7 @@
             }
           },
           {
-            "name": "LoadBalancerFrontEndDtr",
+            "name": "LoadBalancerFrontEndApp",
             "properties": {
               "publicIPAddress": {
                 "id": "[variables('manager_sub0').publicIPAddressIDApp]"
@@ -496,6 +497,25 @@
               "protocol": "Tcp",
               "frontendPort": 443,
               "backendPort": 8443,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[variables('manager_sub1').lbProbeID]"
+              }
+            }
+          },
+          {
+            "name": "LBRuleApp",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('manager_sub1').frontEndIPConfigIDApp]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('manager_sub1').lbPoolID]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
               "enableFloatingIP": false,
               "idleTimeoutInMinutes": 5,
               "probe": {
