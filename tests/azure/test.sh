@@ -52,4 +52,5 @@ az group deployment create --template-file ./azure/ddc/azuredeploy.json --parame
 
 #test UCP and DTR web endpoints
 echo 'testing UCP + DTR endpoints'
-az network public-ip list -g $resource_group_name --query "[?contains(name,'_mgr_')].{ipAddress: ipAddress}" -o table | tail -n +3 | xargs -I % curl -kI https://%
+az network public-ip list -g $resource_group_name --query "[?contains(name,'_mgr_ucp')].{ipAddress: ipAddress}" -o table | tail -n +3 | xargs -I % curl -kI https://%
+az network public-ip list -g $resource_group_name --query "[?contains(name,'_mgr_dtr')].{ipAddress: ipAddress}" -o table | tail -n +3 | xargs -I % curl -kI https://%
