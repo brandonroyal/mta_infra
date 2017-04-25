@@ -8,10 +8,10 @@ machine:
 
 test:
   override:
-    - sh ./tests/azure/test.sh:
-        timeout: 1200000
-    - sh ./tests/azure/cleanup.sh:
-        timeout: 1200000
+    - if [ $CIRCLE_BRANCH -ne 'docs' ]; then sh ./tests/azure/test.sh; fi:
+        timeout: 12000
+    - if [ $CIRCLE_BRANCH -ne 'docs' ]; then sh ./tests/azure/cleanup.sh; fi:
+        timeout: 12000
 
 deployment:
   production:
