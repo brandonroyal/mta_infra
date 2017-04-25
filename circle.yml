@@ -8,9 +8,9 @@ machine:
 
 test:
   override:
-    - if [ $CIRCLE_BRANCH -ne 'docs' ]; then sh ./tests/azure/test.sh; fi:
+    - if [ $CIRCLE_BRANCH != 'docs' ]; then sh ./tests/azure/test.sh; fi:
         timeout: 12000
-    - if [ $CIRCLE_BRANCH -ne 'docs' ]; then sh ./tests/azure/cleanup.sh; fi:
+    - if [ $CIRCLE_BRANCH != 'docs' ]; then sh ./tests/azure/cleanup.sh; fi:
         timeout: 12000
 
 deployment:
