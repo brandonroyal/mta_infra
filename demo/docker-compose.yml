@@ -1,0 +1,29 @@
+version: "3.2"
+
+services:
+  nginx:
+    image: nginx
+    deploy:
+      mode: replicated
+      replicas: 1
+      endpoint_mode: dnsrr
+      placement:
+          constraints: [node.platform.os == linux]
+    networks:
+        - ucp-hrm
+  windows:
+    image: microsoft/iis:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      placement:
+          constraints: [node.platform.os == windows]
+      labels:
+        com.docker.ucp.mesh.http.80: "external_route=http://broyal-ucp-gdrdsdxrgxlau.eastus.cloudapp.azure.com,internal_port=80"
+    networks:
+        - ucp-hrm
+
+networks:
+    ucp-hrm:
+        external: true

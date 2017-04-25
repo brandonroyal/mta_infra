@@ -127,6 +127,15 @@ docker pull microsoft/iis:latest
 
 8) Repeat 2-8 for each Windows worker node
 
+## Enable Http Routing Mesh
+
+1) SSH to Linux manager
+
+2) Create HRM network
+```
+docker network create --label com.docker.ucp.mesh.http=true --driver overlay ucp-hrm
+```
+
 # Testing and Validation
 
 ## Test Swarm and Service Deployments
