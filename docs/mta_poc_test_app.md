@@ -1,9 +1,23 @@
 # Modernize Traditional Application (MTA) POC
 ## *Test App Deployment*
 
-## Testing and Validation
+To ensure the Docker EE has been configured properly, we can deploy a series of test applications to validate their functionality.  Below are some simple test applications to select based on your environment.
 
-### Test Swarm and Service Deployments
+### Simple Window Auth
+This application assumes the [these](https://gist.github.com/PatrickLang/27c743782fca17b19bf94490cbb6f960) steps are complete and a domain is configured, windows nodes are joined to domain, a gMSA is created for the application and a credential spec file has been created.
+
+1) Distribute credential spec file to each host
+
+2) Deploy Service (using host mode)
+```
+$ docker service create --name test --hostname app.example.com -p mode=host,target=80,published=80 --credential-spec "file://app.json" broyal/test-winauth-web:latest
+```
+
+3) Ensure conatiner hostname (in this example, `app.example.com`) resolves to the worker public IP
+
+_NOTE: Using domain identities within application requires credential spec files to be passed into container using `--credential-spec "file://credentialspec.json"`. _
+
+### [Optional] Test Swarm and Service Deployments
 
 1) SSH to Linux manager
 
@@ -38,7 +52,7 @@ docker service rm s0
 docker service rm s1
 ```
 
-### Create Overlay Network and Test Service DNS/Connectivity
+### [Optional] Create Overlay Network and Test Service DNS/Connectivity
 
 1) SSH to Linux manager
 

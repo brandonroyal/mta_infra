@@ -1,7 +1,6 @@
 # Modernize Traditional Application (MTA) POC
 ## *Azure Infrastructure Deployment*
 
-## Introduction
 The Modernizing Traditional Applications (MTA) program is designed demonstrate the value of containerizing select, traditional applications and managing them using modern infrastructure, Docker Enterprise Edition (EE) Advanced.
 
 The following instructions walk through deployment and configuration of Docker EE Adv. for Windows Server 2016 on Microsoft Azure. When complete, you will have a fully functional 4 node cluster. For specific apps, there may be additional requirements to add nodes to support backend databases and domains.
@@ -181,7 +180,7 @@ _NOTE: Expect a minor RDP connection interuption when node is being joined_
 
 8) Repeat 2-8 for each Windows worker node
 
-### Enable Http Routing Mesh
+### [Optional] Enable Http Routing Mesh
 
 1) SSH to Linux manager
 
@@ -193,3 +192,7 @@ $ docker network create --label com.docker.ucp.mesh.http=true --driver overlay u
 3) In UCP UI, enable HTTP Routing Mesh (Admin Settings >> Routing Mesh)
 
 ![image](https://cloud.githubusercontent.com/assets/2762697/25358303/ce1c037e-28f5-11e7-95da-e22f0921df68.png)
+
+### [Optional] Configure Active Directory
+
+https://gist.github.com/PatrickLang/27c743782fca17b19bf94490cbb6f960
