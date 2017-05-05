@@ -2,7 +2,7 @@
 Param(
   [switch] $SkipEngineUpgrade,
   [string] $ArtifactPath = ".",
-  [string] $DockerVersion = "17.05.0-ce-rc2",
+  [string] $DockerVersion = "17.05.0-ce-rc3",
   [string] $DTRFQDN
 )
 
