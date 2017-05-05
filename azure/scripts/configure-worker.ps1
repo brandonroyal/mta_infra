@@ -2,13 +2,14 @@
 Param(
   [switch] $SkipEngineUpgrade,
   [string] $ArtifactPath = ".",
-  [string] $DockerVersion = "17.04.0-ce-rc1",
+  [string] $DockerVersion = "17.05.0-ce-rc3",
   [string] $DTRFQDN
 )
 
 #Variables
 $Date = Get-Date -Format "yyyy-MM-dd HHmmss"
 $DockerPath = "C:\Program Files\Docker"
+$DockerDataPath = "C:\ProgramData\Docker"
 
 function Disable-RealTimeMonitoring () {
     Set-MpPreference -DisableRealtimeMonitoring $true
@@ -50,8 +51,7 @@ function Enable-RemotePowershell () {
 }
 
 function Set-DtrHostnameEnvironmentVariable() {
-    [Environment]::SetEnvironmentVariable("DTR_FQDN", "$DTRFQDN", "User")
-    Write-Host "DTR Hostname environment variable set to: $env:DTR_FQDN"
+    $DTRFQDN | Out-File (Join-Path $DockerDataPath "dtr_fqdn")
 }
 
 function Install-WindowsUpdates() {
