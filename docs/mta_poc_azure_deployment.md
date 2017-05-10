@@ -11,24 +11,26 @@ The following instructions walk through deployment and configuration of Docker E
 ## Prerequisites
 * Docker Enterprise Edition Advanced License
 * Microsoft Azure Subscription
-* [Azure CLI 2.0 (Preview)](https://docs.microsoft.com/en-us/cli/azure/install-az-cli2)
+* [Azure CLI 2.0 (Preview)](https://docs.microsoft.com/en-us/cli/azure/install-az-cli2)(macOS/Linux Client Only)
+* [Azure PowerShell](https://docs.microsoft.com/en-us/azure/azure-resource-manager/powershell-azure-resource-manager)(Windows Client Only)
 * SSH Client
 * SSH RSA Key
 
-## Installation
-While the instructions are generally consistent between Windows and OSX/Linux clients, it's worth noting that some steps specify `# Windows Client` and `# OSX/Linux Client` commands. Please use the command most appropriate for your client.  We'll be using the latest Azure CLI to create infrastructure using an Azure Resource Manager (ARM) template. This template should `only be used for POC purposes`.  For more inforation on deploying Docker containers to Azure, see [Docker for Azure](https://docs.docker.com/docker-for-azure/)
+## Infrastructure Deployment - Windows Client
+We'll be using the Azure PowerShell to create infrastructure using an Azure Resource Manager (ARM) template. This template should `only be used for POC purposes`.  For more inforation on deploying Docker containers to Azure, see [Docker for Azure](https://docs.docker.com/docker-for-azure/)
 
-### Login to Azure Account using Azure CLI
+### Login to Azure Account and Select Subscription Id
 ```
-$ az login
+> Login-AzureRmAccount -Credential (Get-Credential)
+```
+
+```
+> Select-AzureRmSubscription -SubscriptionId "<your_subscription_id>"
 ```
 
 ### Set Variables
-Set the variables we'll use in the installation process. Depending on your client, issue the appropriate `# Windows Client` or `# OSX/Linux Client` commands
+Set the variables we'll use in the installation process.
 ```
-# Windows Client
-# --------------
-
 #Azure Resource Group name
 > $resource_group_name="<resource_group_name>"
 
@@ -43,10 +45,44 @@ Set the variables we'll use in the installation process. Depending on your clien
 
 #SSH rsa public key (used to access Linux manager node)
 > $sshPublicKey="<sshPublicKey>"
+```
 
-# OSX/Linux Client
-# ----------------
+### Configure Parameters
+Create parameters object to pass into deployment
+```
+> $parameters = @{
+    prefix = $prefix
+    adminUsername = "docker"
+    adminPassword = $adminPassword
+    sshPublicKey = $sshPublicKey
+}
+```
 
+### Create Azure Resource Group
+```
+> New-AzureRmResourceGroup -Name $resource_group_name -Location $location
+```
+
+### Deploy using template
+```
+> New-AzureRmResourceGroupDeployment -ResourceGroupName $resource_group_name `
+    -TemplateUri 'https://mtapoc.blob.core.windows.net/v201/azuredeploy.json' `
+    -TemplateParameterObject $parameters `
+    -Verbose
+```
+_NOTE: Deployment process takes ~30-35 minutes to complete including Windows Updates.  You can check your deployment process at [portal.azure.com](https://portal.azure.com)_
+
+## Infrastructure Deployment - macOS/Linux Client
+We'll be using the latest Azure CLI to create infrastructure using an Azure Resource Manager (ARM) template. This template should `only be used for POC purposes`.  For more inforation on deploying Docker containers to Azure, see [Docker for Azure](https://docs.docker.com/docker-for-azure/)
+
+### Login to Azure Account using Azure CLI
+```
+$ az login
+```
+
+### Set Variables
+Set the variables we'll use in the installation process.
+```
 #Azure Resource Group name
 $ export resource_group_name=<resource_group_name>
 
@@ -65,25 +101,6 @@ $ export sshPublicKey="<sshPublicKey>"
 ### Configure Parameters
 Create parameters object to pass into deployment
 ```
-# Windows Client
-> $parameters="
-{
-    \"prefix\": {
-        \"value\": \""$prefix"\"
-    },
-    \"adminUsername\": {
-        \"value\": \"docker\"
-    },
-    \"adminPassword\": {
-        \"value\": \""$adminPassword"\"
-    },
-    \"sshPublicKey\": {
-        \"value\": \""$sshPublicKey"\"
-    }
-}
-"
-
-# OSX/Linux Client
 $ export parameters="
 {
     \"prefix\": {
