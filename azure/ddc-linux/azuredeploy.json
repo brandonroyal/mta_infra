@@ -3,24 +3,24 @@
   "contentVersion": "1.0.0.0",
   "outputs": {
     "mgr_ucp_pip": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('manager').publicIPAddressNameUcp)).ipAddress]"
+        "type": "string", 
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('manager').publicIPAddressNameUcp)).ipAddress]"
     },
     "mgr_ucp_hostname": {
-      "type": "string",
-      "value": "[variables('manager_sub0').ucpHostname]"
+        "type": "string", 
+        "value": "[variables('manager_sub0').ucpHostname]"
     },
     "mgr_dtr_pip": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('manager').publicIPAddressNameDtr)).ipAddress]"
+        "type": "string", 
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('manager').publicIPAddressNameDtr)).ipAddress]"
     },
     "mgr_dtr_hostname": {
-      "type": "string",
-      "value": "[variables('manager_sub0').dtrHostname]"
+        "type": "string", 
+        "value": "[variables('manager_sub0').dtrHostname]"
     },
     "wrk_pip": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('worker').publicIPAddressName)).ipAddress]"
+        "type": "string", 
+        "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('worker').publicIPAddressName)).ipAddress]"
     }
   },
   "parameters": {
@@ -45,16 +45,37 @@
       }
     },
     "sshPublicKey": {
-      "metadata": {
-        "description": "SSH public key"
-      },
-      "type": "string"
+        "metadata": {
+            "description": "SSH public key"
+        }, 
+        "type": "string"
     },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_DS2",
       "metadata": {
         "description": "Size of the VM"
+      }
+    },
+    "vmImagePublisher": {
+      "type": "string",
+      "defaultValue": "canonical",
+      "metadata": {
+        "description": "VM Image Publisher"
+      }
+    },
+    "vmImageOffer": {
+      "type": "string",
+      "defaultValue": "ubuntuserver",
+      "metadata": {
+        "description": "VM Image Offer"
+      }
+    },
+    "vmImageSKU": {
+      "type": "string",
+      "defaultValue": "16.04-LTS",
+      "metadata": {
+        "description": "VM Image SKU"
       }
     },
     "managerCount": {
@@ -99,9 +120,9 @@
     "prefix": "[parameters('prefix')]",
     "manager": {
       "vmNamePrefix": "[concat(variables('prefix'), '-mgr')]",
-      "imagePublisher": "canonical",
-      "imageOffer": "ubuntuserver",
-      "imageSKU": "16.04-LTS",
+      "imagePublisher": "[parameters('vmImagePublisher')]",
+      "imageOffer": "[parameters('vmImageOffer')]",
+      "imageSKU": "[parameters('vmImageSKU')]",
       "count": "[parameters('managerCount')]",
       "availabilitySetName": "[concat(variables('prefix'), '_mgr_as')]",
       "lbName": "[concat(variables('prefix'), '_mgr_lb')]",
@@ -132,9 +153,9 @@
     },
     "worker": {
       "vmNamePrefix": "[concat(variables('prefix'), '-wrk')]",
-      "imagePublisher": "MicrosoftWindowsServer",
-      "imageOffer": "WindowsServer",
-      "imageSKU": "2016-Datacenter-with-Containers",
+      "imagePublisher": "[parameters('vmImagePublisher')]",
+      "imageOffer": "[parameters('vmImageOffer')]",
+      "imageSKU": "[parameters('vmImageSKU')]",
       "count": "[parameters('workerCount')]",
       "availabilitySetName": "[concat(variables('prefix'), '_wrk_as')]",
       "lbName": "[concat(variables('prefix'), '_wrk_lb')]",
@@ -216,7 +237,7 @@
         }
       }
     },
-    {
+        {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('manager').publicIPAddressNameApp]",
@@ -268,50 +289,50 @@
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "properties": {
-        "securityRules": [
-          {
-            "name": "ssh",
-            "properties": {
-              "access": "Allow",
-              "description": "Allow SSH",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "22",
-              "direction": "Inbound",
-              "priority": 201,
-              "protocol": "Tcp",
-              "sourceAddressPrefix": "*",
-              "sourcePortRange": "*"
-            }
-          },
-          {
-            "name": "ucp",
-            "properties": {
-              "access": "Allow",
-              "description": "Allow UCP",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "8443",
-              "direction": "Inbound",
-              "priority": 206,
-              "protocol": "Tcp",
-              "sourceAddressPrefix": "*",
-              "sourcePortRange": "*"
-            }
-          },
-          {
-            "name": "dtr",
-            "properties": {
-              "access": "Allow",
-              "description": "Allow DTR",
-              "destinationAddressPrefix": "*",
-              "destinationPortRange": "443",
-              "direction": "Inbound",
-              "priority": 207,
-              "protocol": "Tcp",
-              "sourceAddressPrefix": "*",
-              "sourcePortRange": "*"
-            }
-          }
-        ]
+          "securityRules": [
+              {
+                    "name": "ssh",
+                    "properties": {
+                        "access": "Allow",
+                        "description": "Allow SSH",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "22",
+                        "direction": "Inbound",
+                        "priority": 201,
+                        "protocol": "Tcp",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*"
+                    }
+                },
+                {
+                    "name": "ucp",
+                    "properties": {
+                        "access": "Allow",
+                        "description": "Allow UCP",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "8443",
+                        "direction": "Inbound",
+                        "priority": 206,
+                        "protocol": "Tcp",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*"
+                    }
+                },
+                {
+                    "name": "dtr",
+                    "properties": {
+                        "access": "Allow",
+                        "description": "Allow DTR",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "443",
+                        "direction": "Inbound",
+                        "priority": 207,
+                        "protocol": "Tcp",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*"
+                    }
+                }
+          ]
       },
       "resources": [],
       "dependsOn": []
@@ -437,33 +458,33 @@
           {
             "name": "default.0",
             "properties": {
-              "backendPort": 22,
+              "backendPort": 22, 
               "frontendIPConfiguration": {
-                "id": "[variables('manager_sub1').frontEndIPConfigIDUcp]"
-              },
-              "frontendPort": 50000,
+                  "id": "[variables('manager_sub1').frontEndIPConfigIDUcp]"
+              }, 
+              "frontendPort": 50000, 
               "protocol": "tcp"
             }
           },
           {
             "name": "default.1",
             "properties": {
-              "backendPort": 22,
+              "backendPort": 22, 
               "frontendIPConfiguration": {
-                "id": "[variables('manager_sub1').frontEndIPConfigIDUcp]"
-              },
-              "frontendPort": 50001,
+                  "id": "[variables('manager_sub1').frontEndIPConfigIDUcp]"
+              }, 
+              "frontendPort": 50001, 
               "protocol": "tcp"
             }
           },
           {
             "name": "default.2",
             "properties": {
-              "backendPort": 22,
+              "backendPort": 22, 
               "frontendIPConfiguration": {
-                "id": "[variables('manager_sub1').frontEndIPConfigIDUcp]"
-              },
-              "frontendPort": 50002,
+                  "id": "[variables('manager_sub1').frontEndIPConfigIDUcp]"
+              }, 
+              "frontendPort": 50002, 
               "protocol": "tcp"
             }
           }
@@ -529,31 +550,31 @@
         ],
         "probes": [
           {
-            "name": "default",
-            "properties": {
-              "intervalInSeconds": 10,
-              "numberOfProbes": 2,
-              "port": 22,
-              "protocol": "Tcp"
-            }
-          },
+              "name": "default", 
+              "properties": {
+                  "intervalInSeconds": 10, 
+                  "numberOfProbes": 2, 
+                  "port": 22, 
+                  "protocol": "Tcp"
+              }
+          }, 
           {
-            "name": "ucp",
-            "properties": {
-              "intervalInSeconds": 10,
-              "numberOfProbes": 2,
-              "port": 443,
-              "protocol": "Tcp"
-            }
-          },
+              "name": "ucp", 
+              "properties": {
+                  "intervalInSeconds": 10, 
+                  "numberOfProbes": 2, 
+                  "port": 443, 
+                  "protocol": "Tcp"
+              }
+          }, 
           {
-            "name": "dtr",
-            "properties": {
-              "intervalInSeconds": 10,
-              "numberOfProbes": 2,
-              "port": 8443,
-              "protocol": "Tcp"
-            }
+              "name": "dtr", 
+              "properties": {
+                  "intervalInSeconds": 10, 
+                  "numberOfProbes": 2, 
+                  "port": 8443, 
+                  "protocol": "Tcp"
+              }
           }
         ]
       }
@@ -591,7 +612,7 @@
               },
               "protocol": "tcp",
               "frontendPort": 50000,
-              "backendPort": 3389,
+              "backendPort": 22,
               "enableFloatingIP": false
             }
           },
@@ -603,7 +624,7 @@
               },
               "protocol": "tcp",
               "frontendPort": 50001,
-              "backendPort": 3389,
+              "backendPort": 22,
               "enableFloatingIP": false
             }
           },
@@ -615,7 +636,7 @@
               },
               "protocol": "tcp",
               "frontendPort": 50002,
-              "backendPort": 3389,
+              "backendPort": 22,
               "enableFloatingIP": false
             }
           }
@@ -707,15 +728,15 @@
           "computerName": "[concat(variables('manager').vmNamePrefix, copyIndex())]",
           "adminUsername": "[parameters('adminUsername')]",
           "linuxConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-              "publicKeys": [
-                {
-                  "keyData": "[parameters('sshPublicKey')]",
-                  "path": "[variables('sshKeyPath')]"
-                }
-              ]
-            }
+              "disablePasswordAuthentication": true, 
+              "ssh": {
+                  "publicKeys": [
+                      {
+                          "keyData": "[parameters('sshPublicKey')]", 
+                          "path": "[variables('sshKeyPath')]"
+                      }
+                  ]
+              }
           }
         },
         "storageProfile": {
@@ -775,7 +796,17 @@
         "osProfile": {
           "computerName": "[concat(variables('worker').vmNamePrefix, copyIndex())]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "linuxConfiguration": {
+              "disablePasswordAuthentication": true, 
+              "ssh": {
+                  "publicKeys": [
+                      {
+                          "keyData": "[parameters('sshPublicKey')]", 
+                          "path": "[variables('sshKeyPath')]"
+                      }
+                  ]
+              }
+          }
         },
         "storageProfile": {
           "imageReference": {
@@ -808,36 +839,36 @@
       }
     },
     {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('manager').vmNamePrefix, copyIndex(), '/mgr_scriptextension')]",
-      "copy": {
-        "name": "VirtualMachineScriptExtensionLoop",
-        "count": "[variables('manager').count]"
-      },
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('manager').vmNamePrefix, copyindex())]"
-      ],
-      "tags": {
-        "displayName": "[concat(variables('prefix'), '_mgr_', 'extension')]"
-      },
-      "properties": {
-        "publisher": "Microsoft.Azure.Extensions",
-        "type": "CustomScript",
-        "typeHandlerVersion": "2.0",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "fileUris": [
-            "[concat(parameters('artifactBaseUri'), 'interfaces')]",
-            "[concat(parameters('artifactBaseUri'), 'set-static-ip.sh')]",
-            "[concat(parameters('artifactBaseUri'), 'install-docker.sh')]",
-            "[concat(parameters('artifactBaseUri'), 'install-ucp-mgr.sh')]",
-            "[concat(parameters('artifactBaseUri'), 'install-dtr-mgr.sh')]"
-          ],
-          "commandToExecute": "[concat('export UCP_PUBLIC_FQDN=', variables('manager_sub0').ucpHostname, '; export DTR_PUBLIC_FQDN=', variables('manager_sub0').dtrHostname, '; export UCP_ADMIN_PASSWORD=', parameters('adminPassword'), '; ./install-docker.sh; ./install-ucp-mgr.sh; ./install-dtr-mgr.sh;')]"
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(variables('manager').vmNamePrefix, copyIndex(), '/mgr_scriptextension')]",
+        "copy": {
+          "name": "VirtualMachineScriptExtensionLoop",
+          "count": "[variables('manager').count]"
+        },
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2015-06-15",
+        "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('manager').vmNamePrefix, copyindex())]"
+        ],
+        "tags": {
+            "displayName": "[concat(variables('prefix'), '_mgr_', 'extension')]"
+        },
+        "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "[concat(parameters('artifactBaseUri'), 'interfaces')]",
+              "[concat(parameters('artifactBaseUri'), 'set-static-ip.sh')]",
+              "[concat(parameters('artifactBaseUri'), 'install-docker.sh')]",
+              "[concat(parameters('artifactBaseUri'), 'install-ucp-mgr.sh')]",
+              "[concat(parameters('artifactBaseUri'), 'install-dtr-mgr.sh')]"
+            ],
+            "commandToExecute": "[concat('export UCP_PUBLIC_FQDN=', variables('manager_sub0').ucpHostname, '; export DTR_PUBLIC_FQDN=', variables('manager_sub0').dtrHostname, '; export UCP_ADMIN_PASSWORD=', parameters('adminPassword'), '; ./install-docker.sh; ./install-ucp-mgr.sh; ./install-dtr-mgr.sh;')]"
+          }
         }
-      }
     },
     {
       "apiVersion": "2015-06-15",

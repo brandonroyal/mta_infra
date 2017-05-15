@@ -1,0 +1,16 @@
+parameters="
+{
+    \"prefix\": {
+        \"value\": \""$prefix"\"
+    },
+    \"adminUsername\": {
+        \"value\": \"docker\"
+    },
+    \"adminPassword\": {
+        \"value\": \""$adminPassword"\"
+    },
+    \"sshPublicKey\": {
+        \"value\": \""$sshPublicKey"\"
+    }
+}
+"
