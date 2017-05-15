@@ -13,24 +13,6 @@
     },
     "sshPublicKey": {
       "value": "<sshPublicKey>"
-    },
-    "vmSize": {
-        "value": "Standard_DS2"
-    },
-    "storageDomain": {
-      "value": "blob.core.windows.net"
-    },
-    "dnsFqdnSuffix": {
-      "value": "cloudapp.azure.com"
-    },
-    "storageAccountName": {
-      "value": "<storageAccountName>"
-    },
-    "storageAccountKey": {
-      "value": "<storageAccountKey>"
-    },
-    "storageContainerName": {
-      "value": "hotfix"
     }
   }
 }

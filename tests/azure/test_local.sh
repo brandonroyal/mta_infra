@@ -1,14 +1,11 @@
 #/bin/bash
 set -e
 
-echo "logging in"
-az login  --service-principal -u $u -p $p --tenant $tenant -o table
-
 #set variables
 echo "setting variables"
-export resource_group_name="broyal_ci$CIRCLE_BUILD_NUM"
+export resource_group_name="broyal_ci$RANDOM"
 export location="eastus"
-export storage_account_name="broyalmta$CIRCLE_BUILD_NUM"
+export storage_account_name="broyalmta$RANDOM"
 export artifactBaseUri="https://$storage_account_name.blob.core.windows.net/artifacts/"
 
 #create resource group
