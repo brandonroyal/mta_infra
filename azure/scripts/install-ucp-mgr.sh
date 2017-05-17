@@ -9,15 +9,13 @@ if [ -z "$UCP_ADMIN_PASSWORD" ]; then
     exit 1
 fi
 
-if [ -z "$UCP_HOST_ADDRESS" ]; then
-    eval UCP_HOST_ADDRESS=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1)
-fi
-
 echo "UCP_PUBLIC_FQDN=$UCP_PUBLIC_FQDN"
-echo "UCP_HOST_ADDRESS=$UCP_HOST_ADDRESS"
+
+#start docker service
+sudo service docker start
 
 #install UCP
 docker run --rm --name ucp \
   -v /var/run/docker.sock:/var/run/docker.sock \
-   docker/ucp:2.1.1 \
-   install --enable-windows --host-address $UCP_HOST_ADDRESS --san $UCP_PUBLIC_FQDN --admin-password $UCP_ADMIN_PASSWORD --debug
+   docker/ucp:2.1.4 \
+   install --enable-windows --san $UCP_PUBLIC_FQDN --admin-password $UCP_ADMIN_PASSWORD --debug

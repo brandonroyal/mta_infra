@@ -18,9 +18,12 @@ if [ -z "$UCP_NODE"]; then
   export UCP_NODE=$(docker node ls | grep mgr0 | awk '{print $3}');
 fi
 
+#start docker service
+sudo service docker start
+
 #install DTR
 docker run --rm \
-  docker/dtr:2.2.3 install \
+  docker/dtr:2.2.4 install \
   --ucp-url $UCP_PUBLIC_FQDN \
   --ucp-node $UCP_NODE \
   --dtr-external-url $DTR_PUBLIC_FQDN \

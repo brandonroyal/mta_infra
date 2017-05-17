@@ -793,7 +793,7 @@
               "[concat(parameters('artifactBaseUri'), 'install-ucp-mgr.sh')]",
               "[concat(parameters('artifactBaseUri'), 'install-dtr-mgr.sh')]"
             ],
-            "commandToExecute": "[concat('export HOST_IP=10.0.144.', add(5, copyindex()), '; export UCP_PUBLIC_FQDN=', variables('manager_sub0').ucpHostname, '; export DTR_PUBLIC_FQDN=', variables('manager_sub0').dtrHostname, '; export UCP_ADMIN_PASSWORD=', parameters('adminPassword'), '; ./set-static-ip.sh; ./install-docker.sh; ./install-ucp-mgr.sh; ./install-dtr-mgr.sh;')]"
+            "commandToExecute": "[concat('export UCP_PUBLIC_FQDN=', variables('manager_sub0').ucpHostname, '; export DTR_PUBLIC_FQDN=', variables('manager_sub0').dtrHostname, '; export UCP_ADMIN_PASSWORD=', parameters('adminPassword'), '; ./install-docker.sh; ./install-ucp-mgr.sh; ./install-dtr-mgr.sh;')]"
           }
         }
     },
