@@ -66,7 +66,7 @@ Create parameters object to pass into deployment
 ### Deploy using template
 ```
 > New-AzureRmResourceGroupDeployment -ResourceGroupName $resource_group_name `
-    -TemplateUri 'https://mtapoc.blob.core.windows.net/v201/azuredeploy.json' `
+    -TemplateUri 'https://mtapoc.blob.core.windows.net/v203/azuredeploy.json' `
     -TemplateParameterObject $parameters `
     -Verbose
 ```
@@ -126,7 +126,7 @@ $ az group create --name $resource_group_name --location $location
 
 ### Deploy using template
 ```
-$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v201/azuredeploy.json --parameters "$parameters" -g $resource_group_name --verbose
+$ az group deployment create --template-uri https://mtapoc.blob.core.windows.net/v203/azuredeploy.json --parameters "$parameters" -g $resource_group_name --verbose
 ```
 _NOTE: Deployment process takes ~30-35 minutes to complete including Windows Updates.  You can check your deployment process at [portal.azure.com](https://portal.azure.com)_
 
