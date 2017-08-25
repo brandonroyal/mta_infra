@@ -13,8 +13,10 @@ echo "creating resource group"
 az group create --name $resource_group_name --location $location
 
 #create storage account and container
+echo "creating testing storage account"
 az storage account create --name $storage_account_name --location $location --resource-group $resource_group_name --sku Standard_LRS
 connectionString=$(az storage account show-connection-string --name $storage_account_name --resource-group $resource_group_name --key primary --query connectionString)
+echo "creating storage container"
 az storage container create --name artifacts --public-access blob --connection-string $connectionString
 
 #upload script assets
