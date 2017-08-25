@@ -17,5 +17,5 @@ sudo service docker start
 #install UCP
 docker run --rm --name ucp \
   -v /var/run/docker.sock:/var/run/docker.sock \
-   docker/ucp:2.1.4 \
-   install --enable-windows --san $UCP_PUBLIC_FQDN --admin-password $UCP_ADMIN_PASSWORD --debug
+   docker/ucp:2.2.0 \
+   install --san $UCP_PUBLIC_FQDN --admin-password $UCP_ADMIN_PASSWORD --debug
