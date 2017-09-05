@@ -8,6 +8,9 @@ This template currently deploys a UCP manager, a single DTR replica and UCP work
 
 Deploy Docker EE to Azure using interactive deployment script
 ```
+$ wget https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/deploy.sh
+```
+```
 $ sh deploy.sh
 ```
 
