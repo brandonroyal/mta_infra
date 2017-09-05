@@ -88,7 +88,7 @@ if [[ $DEBUG == "true" ]]; then
     #upload script assets
     for filepath in ./azure/scripts/*; do
         echo "[DEBUG] uploading artifact: $filepath"
-        az storage blob upload -f $filepath -c artifacts -n $(basename $filepath) --connection-string $connection_string
+        az storage blob upload -f $filepath -c artifacts -n $filepath --connection-string $connection_string
     done
 
     #set artifact base url parameter
