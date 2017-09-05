@@ -139,7 +139,7 @@ if [[ $DEBUG == "true" ]]; then
 else
     echo "[INFO] creating deployment"
     az group deployment create \
-        --template-url https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/azure/ee-windows/azuredeploy.json \
+        --template-uri https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/azure/ee-windows/azuredeploy.json \
         --parameters "$parameters" \
         -g $AZURE_RESOURCE_GROUP_NAME \
         --verbose
