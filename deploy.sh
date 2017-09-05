@@ -8,6 +8,11 @@ echo "Deploying Docker EE"
 echo "------------------------"
 echo ""
 
+DOCKER_ENGINE_VERSION="17.06.1-ee-1"
+DOCKER_UCP_VERSION="2.2.0"
+DOCKER_DTR_VERSION="2.3.0"
+#TODO: Check versions return a 200
+
 if [[ -z "${AZURE_RESOURCE_GROUP_NAME// }" ]]; then
     echo "azure resource group name:"
     read AZURE_RESOURCE_GROUP_NAME
@@ -62,6 +67,7 @@ if [[ $continueAnswer != "y" ]]; then
     exit
 fi
 
+echo "[INFO] creating resource group"
 az group create --name $AZURE_RESOURCE_GROUP_NAME --location $AZURE_LOCATION
 
 if [[ $DEBUG == "true" ]]; then
@@ -69,20 +75,27 @@ if [[ $DEBUG == "true" ]]; then
     artifact_base_uri="https://$storage_account_name.blob.core.windows.net/artifacts/"
 
     #create storage account and container
+    echo "[DEBUG] creating storage account: $storage_account_name"
     az storage account create --name $storage_account_name --location $AZURE_LOCATION --resource-group $AZURE_RESOURCE_GROUP_NAME --sku Standard_LRS
-    connection_strong=$(az storage account show-connection-string --name $storage_account_name --resource-group $AZURE_RESOURCE_GROUP_NAME --key primary --query connectionString)
-    az storage container create --name artifacts --public-access blob --connection-string $connection_strong
+
+    echo "[DEBUG] establishing connection string"
+    connection_string=$(az storage account show-connection-string --name $storage_account_name --resource-group $AZURE_RESOURCE_GROUP_NAME -o json --key primary --query connectionString)
+
+
+    echo "[DEBUG] creating storage container: artifacts"
+    az storage container create --name artifacts --public-access blob --connection-string $connection_string
 
     #upload script assets
     for filepath in ./azure/scripts/*; do
-        az storage blob upload -f $filepath -c artifacts -n $(basename $filepath) --connection-string $connection_strong
+        echo "[DEBUG] uploading artifact: $filepath"
+        az storage blob upload -f $filepath -c artifacts -n $(basename $filepath) --connection-string $connection_string
     done
 
     #set artifact base url parameter
     artifactBaseUriParameter="
     ,
     \"artifactBaseUri\": {
-        \"value\": \""$artifactBaseUri"\"
+        \"value\": \""$artifact_base_uri"\"
     }
     "
 fi
@@ -99,17 +112,35 @@ parameters="
         \"value\": \""$AZURE_DOCKER_ADMIN_PASSWORD"\"
     },
     \"sshPublicKey\": {
-        \"value\": \""$sshPublicKey"\"
+        \"value\": \""$SSH_PUBLIC_KEY"\"
     },
-    \"dockerId\": {
-        \"value\": \""$dockerId"\"
+    \"dockerVersion\": {
+        \"value\": \""$DOCKER_ENGINE_VERSION"\"
     },
-    \"dockerPassword\": {
-        \"value\": \""$dockerPassword"\"
+    \"ucpVersion\": {
+        \"value\": \""$DOCKER_UCP_VERSION"\"
+    },
+    \"dtrVersion\": {
+        \"value\": \""$DOCKER_DTR_VERSION"\"
     }
     $artifactBaseUriParameter
 }
 "
 
-
-az group deployment create --template-file azuredeploy.json --parameters "$parameters" -g $AZURE_RESOURCE_GROUP_NAME --verbose
+if [[ $DEBUG == "true" ]]; then
+    echo "[DEBUG] using parameters:"
+    echo $parameters
+    echo "[DEBUG] creating deployment"
+    az group deployment create \
+        --template-file azure/ee-windows/azuredeploy.json \
+        --parameters "$parameters" \
+        -g $AZURE_RESOURCE_GROUP_NAME \
+        --verbose
+else
+    echo "[INFO] creating deployment"
+    az group deployment create \
+        --template-url https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/azure/ee-windows/azuredeploy.json \
+        --parameters "$parameters" \
+        -g $AZURE_RESOURCE_GROUP_NAME \
+        --verbose
+fi

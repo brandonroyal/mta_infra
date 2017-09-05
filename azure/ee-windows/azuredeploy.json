@@ -82,6 +82,15 @@
         "description": "Azure commercial or government domain"
       }
     },
+    "dockerVersion": {
+      "type": "string"
+    },
+    "ucpVersion": {
+      "type": "string"
+    },
+    "dtrVersion": {
+      "type": "string"
+    },
     "dnsFqdnSuffix": {
       "type": "string",
       "defaultValue": "cloudapp.azure.com",
@@ -346,7 +355,7 @@
               ],
               "loadBalancerInboundNatRules": [
                 {
-                  "id": "[concat(variables('manager_sub0').lbID,'/inboundNatRules/default.',copyIndex())]"
+                  "id": "[concat(variables('manager_sub0').lbID,'/inboundNatRules/ssh.',copyIndex())]"
                 }
               ]
             }
@@ -373,7 +382,7 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[concat('10.0.144.', add(variables('manager').count, add(5, copyindex())))]",
+              "privateIPAddress": "[concat('10.0.144.', add(variables('worker').count, add(5, copyindex())))]",
               "subnet": {
                 "id": "[variables('subnetRef')]"
               },
@@ -384,7 +393,10 @@
               ],
               "loadBalancerInboundNatRules": [
                 {
-                  "id": "[concat(variables('worker_sub0').lbID,'/inboundNatRules/default.', copyindex())]"
+                  "id": "[concat(variables('worker_sub0').lbID,'/inboundNatRules/rdp.', copyindex())]"
+                },
+                {
+                  "id": "[concat(variables('worker_sub0').lbID,'/inboundNatRules/ssh.', copyindex())]"
                 }
               ]
             }
@@ -865,8 +877,6 @@
             "autoUpgradeMinorVersion": true,
           "settings": {
             "fileUris": [
-              "[concat(parameters('artifactBaseUri'), 'interfaces')]",
-              "[concat(parameters('artifactBaseUri'), 'set-static-ip.sh')]",
               "[concat(parameters('artifactBaseUri'), 'install-docker.sh')]",
               "[concat(parameters('artifactBaseUri'), 'install-ucp-mgr.sh')]",
               "[concat(parameters('artifactBaseUri'), 'install-dtr-mgr.sh')]"
@@ -899,10 +909,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "[concat(parameters('artifactBaseUri'), 'postjoin-worker.ps1')]",
             "[concat(parameters('artifactBaseUri'), 'configure-worker.ps1')]"
           ],
-          "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DTRFQDN ', variables('manager_sub0').dtrHostname)]"
+          "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DockerVersion ', parameters('dockerVersion'), ' -UcpVersion ', parameters('ucpVersion'), ' -DTRFQDN ', variables('manager_sub0').dtrHostname)]"
         }
       }
     }
