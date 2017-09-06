@@ -99,9 +99,9 @@
         "cloudapp.usgovcloudapi.net"
       ]
     },
-    "artifactBaseUri": {
+    "scriptsBaseUri": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/" 
+      "defaultValue": "https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/azure/scripts/" 
     }
   },
   "variables": {
@@ -877,9 +877,9 @@
             "autoUpgradeMinorVersion": true,
           "settings": {
             "fileUris": [
-              "[concat(parameters('artifactBaseUri'), 'azure/scripts/install-docker.sh')]",
-              "[concat(parameters('artifactBaseUri'), 'azure/scripts/install-ucp-mgr.sh')]",
-              "[concat(parameters('artifactBaseUri'), 'azure/scripts/install-dtr-mgr.sh')]"
+              "[concat(parameters('scriptsBaseUri'), 'install-docker.sh')]",
+              "[concat(parameters('scriptsBaseUri'), 'install-ucp-mgr.sh')]",
+              "[concat(parameters('scriptsBaseUri'), 'install-dtr-mgr.sh')]"
             ]
           },
           "protectedSettings": {
@@ -909,7 +909,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "[concat(parameters('artifactBaseUri'), 'azure/scripts/configure-worker.ps1')]"
+            "[concat(parameters('scriptsBaseUri'), 'configure-worker.ps1')]"
           ],
           "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File configure-worker.ps1 -DockerVersion ', parameters('dockerVersion'), ' -UcpVersion ', parameters('ucpVersion'), ' -DTRFQDN ', variables('manager_sub0').dtrHostname)]"
         }
