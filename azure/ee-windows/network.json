@@ -1,0 +1,100 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+      "prefix": {
+        "type": "string",
+        "metadata": {
+          "description": "Prefix used for all resources"
+        },
+        "minLength": 3,
+        "maxLength": 7
+      }
+    },
+    "variables": {
+      "addressPrefix": "10.0.0.0/16",
+      "subnetName": "Subnet",
+      "subnetPrefix": "10.0.144.0/24",
+      "vnetName": "[concat(parameters('prefix'), '_vnet')]",
+      "nsgName": "[concat(parameters('prefix'), '_nsg')]"
+    },
+    "resources": [
+      {
+        "apiVersion": "2015-05-01-preview",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[variables('vnetName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[variables('addressPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[variables('subnetName')]",
+              "properties": {
+                "addressPrefix": "[variables('subnetPrefix')]"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "comments": "Network security group",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[variables('nsgName')]",
+        "apiVersion": "2016-03-30",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "securityRules": [
+            {
+              "name": "ssh",
+              "properties": {
+                "access": "Allow",
+                "description": "Allow SSH",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "22",
+                "direction": "Inbound",
+                "priority": 201,
+                "protocol": "Tcp",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*"
+              }
+            },
+            {
+              "name": "ucp",
+              "properties": {
+                "access": "Allow",
+                "description": "Allow UCP",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "8443",
+                "direction": "Inbound",
+                "priority": 206,
+                "protocol": "Tcp",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*"
+              }
+            },
+            {
+              "name": "dtr",
+              "properties": {
+                "access": "Allow",
+                "description": "Allow DTR",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "443",
+                "direction": "Inbound",
+                "priority": 207,
+                "protocol": "Tcp",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*"
+              }
+            }
+          ]
+        },
+        "resources": [],
+        "dependsOn": []
+      }
+    ]
+  }

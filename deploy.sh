@@ -85,9 +85,29 @@ if [[ $DEBUG == "true" ]]; then
     #add trailing / to url (needed for concat joins later)
     scripts_base_uri="$scripts_base_uri/"
 
+    echo "[DEBUG] scripts base url: $scripts_base_uri"
+
+    #upload template assets
+    paths=""
+    for filepath in ./azure/ee-windows/*; do
+        echo "[DEBUG] adding template to upload queue: $filepath"
+        paths="$paths $filepath"
+    done
+
+    echo "[DEBUG] uploading templates"
+    #upload files using gist CLI
+    templates_base_uri=$(gist -pR $paths)
+    #add trailing / to url (needed for concat joins later)
+    templates_base_uri="$templates_base_uri/"
+
+    echo "[DEBUG] templates base url: $templates_base_uri"    
+
     #set artifact base url parameter
     artifactBaseUriParameter="
     ,
+    \"templatesBaseUri\": {
+        \"value\": \""$templates_base_uri"\"
+    },
     \"scriptsBaseUri\": {
         \"value\": \""$scripts_base_uri"\"
     }
@@ -123,12 +143,12 @@ parameters="
 
 if [[ $DEBUG == "true" ]]; then
     echo "[DEBUG] setting trap to cleanup gist on exit"
-    # trap "gist --delete $scripts_base_uri" EXIT
+    trap "echo '[DEBUG] cleaning up gist scripts and templates'; gist --delete $scripts_base_uri; gist --delete $templates_base_uri" EXIT
     echo "[DEBUG] using parameters:"
     echo $parameters
     echo "[DEBUG] creating deployment"
     az group deployment create \
-        --template-file azure/ee-windows/azuredeploy.json \
+        --template-file azure/ee-windows/index.json \
         --parameters "$parameters" \
         -g $AZURE_RESOURCE_GROUP_NAME \
         --verbose
