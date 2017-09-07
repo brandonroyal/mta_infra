@@ -71,31 +71,25 @@ echo "[INFO] creating resource group"
 az group create --name $AZURE_RESOURCE_GROUP_NAME --location $AZURE_LOCATION
 
 if [[ $DEBUG == "true" ]]; then
-    storage_account_name="$AZURE_ITEM_PREFIX$RANDOM"
-    artifact_base_uri="https://$storage_account_name.blob.core.windows.net/artifacts/"
-
-    #create storage account and container
-    echo "[DEBUG] creating storage account: $storage_account_name"
-    az storage account create --name $storage_account_name --location $AZURE_LOCATION --resource-group $AZURE_RESOURCE_GROUP_NAME --sku Standard_LRS
-
-    echo "[DEBUG] establishing connection string"
-    connection_string=$(az storage account show-connection-string --name $storage_account_name --resource-group $AZURE_RESOURCE_GROUP_NAME -o json --key primary --query connectionString)
-
-
-    echo "[DEBUG] creating storage container: artifacts"
-    az storage container create --name artifacts --public-access blob --connection-string $connection_string
 
     #upload script assets
+    paths=""
     for filepath in ./azure/scripts/*; do
-        echo "[DEBUG] uploading artifact: $filepath"
-        az storage blob upload -f $filepath -c artifacts -n $filepath --connection-string $connection_string
+        echo "[DEBUG] adding script to upload queue: $filepath"
+        paths="$paths $filepath"
     done
+
+    echo "[DEBUG] uploading scripts"
+    #upload files using gist CLI
+    scripts_base_uri=$(gist -pR $paths)
+    #add trailing / to url (needed for concat joins later)
+    scripts_base_uri="$scripts_base_uri/"
 
     #set artifact base url parameter
     artifactBaseUriParameter="
     ,
-    \"artifactBaseUri\": {
-        \"value\": \""$artifact_base_uri"\"
+    \"scriptsBaseUri\": {
+        \"value\": \""$scripts_base_uri"\"
     }
     "
 fi
@@ -128,6 +122,8 @@ parameters="
 "
 
 if [[ $DEBUG == "true" ]]; then
+    echo "[DEBUG] setting trap to cleanup gist on exit"
+    # trap "gist --delete $scripts_base_uri" EXIT
     echo "[DEBUG] using parameters:"
     echo $parameters
     echo "[DEBUG] creating deployment"
