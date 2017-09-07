@@ -14,6 +14,11 @@ if [ -z "$DTR_PUBLIC_FQDN" ]; then
     exit 1
 fi
 
+if [ -z "$DTR_VERSION" ]; then
+    echo 'DTR_VERSION is undefined'
+    exit 1
+fi
+
 if [ -z "$UCP_NODE"]; then
   export UCP_NODE=$(docker node ls | grep mgr0 | awk '{print $3}');
 fi
@@ -23,7 +28,7 @@ sudo service docker start
 
 #install DTR
 docker run --rm \
-  docker/dtr:2.2.4 install \
+  docker/dtr:$DTR_VERSION install \
   --ucp-url $UCP_PUBLIC_FQDN \
   --ucp-node $UCP_NODE \
   --dtr-external-url $DTR_PUBLIC_FQDN \
