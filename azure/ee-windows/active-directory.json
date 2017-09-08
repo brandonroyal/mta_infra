@@ -55,10 +55,10 @@
         "dnsName": "[concat(parameters('prefix'),'-ad-',uniqueString(resourceGroup().id))]",
         "nicNamePrefix": "[concat(parameters('prefix'), '_ad_nic')]",
         "vnetName": "[concat(parameters('prefix'), '_vnet')]",
-        "staticIpAddress": "10.0.144.1",
+        "staticIpAddress": "10.0.144.30",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnetName'))]",
         "subnetName": "Subnet",
-        "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables ('subnetName'))]",
+        "subnetRef": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]",
         "vmNamePrefix": "[concat(parameters('prefix'), '-ad')]",
         "imagePublisher": "MicrosoftWindowsServer",
         "imageOffer": "WindowsServer",
@@ -151,7 +151,7 @@
                 "osDisk": {
                   "name": "osdisk",
                   "vhd": {
-                    "uri": "[concat('http://',variables('storageAccountName'), variables('storageDomainSuffix'), '/vhds/','osdiskwrk', copyindex(), '.vhd')]"
+                    "uri": "[concat('http://',variables('storageAccountName'), variables('storageDomainSuffix'), '/vhds/','osdiskwrk.vhd')]"
                   },
                   "caching": "ReadWrite",
                   "createOption": "FromImage"

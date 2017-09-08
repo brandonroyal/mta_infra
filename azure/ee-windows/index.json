@@ -92,7 +92,7 @@
         { 
             "apiVersion": "2017-05-10", 
             "name": "networkTemplate", 
-            "type": "Microsoft.Resources/deployments", 
+            "type": "Microsoft.Resources/deployments",
             "properties": { 
               "mode": "Incremental", 
               "templateLink": {
@@ -107,7 +107,10 @@
         { 
             "apiVersion": "2017-05-10", 
             "name": "activeDirectoryTemplate", 
-            "type": "Microsoft.Resources/deployments", 
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'networkTemplate')]"
+            ],
             "properties": { 
               "mode": "Incremental", 
               "templateLink": {
