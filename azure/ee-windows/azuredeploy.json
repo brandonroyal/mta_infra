@@ -118,23 +118,33 @@
       "publicIPAddressNameUcp": "[concat(variables('prefix'), '_mgr_ucp_pip')]",
       "publicIPAddressNameDtr": "[concat(variables('prefix'), '_mgr_dtr_pip')]",
       "publicIPAddressNameApp": "[concat(variables('prefix'), '_mgr_app_pip')]",
+      "publicIPAddressNameBuild": "[concat(variables('prefix'), '_mgr_build_pip')]",
+      "publicIPAddressNameGit": "[concat(variables('prefix'), '_mgr_git_pip')]",
       "dnsNameforUcp": "[concat(variables('prefix'),'-ucp-',uniqueString(resourceGroup().id))]",
       "dnsNameforDtr": "[concat(variables('prefix'),'-dtr-',uniqueString(resourceGroup().id))]",
-      "dnsNameforApp": "[concat(variables('prefix'),'-app-',uniqueString(resourceGroup().id))]"
+      "dnsNameforApp": "[concat(variables('prefix'),'-app-',uniqueString(resourceGroup().id))]",
+      "dnsNameforBuild": "[concat(variables('prefix'),'-build-',uniqueString(resourceGroup().id))]",
+      "dnsNameforGit": "[concat(variables('prefix'),'-git-',uniqueString(resourceGroup().id))]"
     },
     "manager_sub0": {
       "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('manager').lbName)]",
       "publicIPAddressIDUcp": "[resourceId('Microsoft.Network/publicIPAddresses',variables('manager').publicIPAddressNameUcp)]",
       "publicIPAddressIDDtr": "[resourceId('Microsoft.Network/publicIPAddresses',variables('manager').publicIPAddressNameDtr)]",
       "publicIPAddressIDApp": "[resourceId('Microsoft.Network/publicIPAddresses',variables('manager').publicIPAddressNameApp)]",
+      "publicIPAddressIDBuild": "[resourceId('Microsoft.Network/publicIPAddresses',variables('manager').publicIPAddressNameBuild)]",
+      "publicIPAddressIDGit": "[resourceId('Microsoft.Network/publicIPAddresses',variables('manager').publicIPAddressNameGit)]",
       "ucpHostname": "[concat(variables('manager').dnsNameforUcp, '.', resourceGroup().location, '.', parameters('dnsFqdnSuffix'))]",
       "dtrHostname": "[concat(variables('manager').dnsNameforDtr, '.', resourceGroup().location, '.', parameters('dnsFqdnSuffix'))]",
-      "appHostname": "[concat(variables('manager').dnsNameforApp, '.', resourceGroup().location, '.', parameters('dnsFqdnSuffix'))]"
+      "appHostname": "[concat(variables('manager').dnsNameforApp, '.', resourceGroup().location, '.', parameters('dnsFqdnSuffix'))]",
+      "buildHostname": "[concat(variables('manager').dnsNameforBuild, '.', resourceGroup().location, '.', parameters('dnsFqdnSuffix'))]",
+      "gitHostname": "[concat(variables('manager').dnsNameforGit, '.', resourceGroup().location, '.', parameters('dnsFqdnSuffix'))]"
     },
     "manager_sub1": {
       "frontEndIPConfigIDUcp": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndUcp')]",
       "frontEndIPConfigIDDtr": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndDtr')]",
       "frontEndIPConfigIDApp": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndApp')]",
+      "frontEndIPConfigIDBuild": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndBuild')]",
+      "frontEndIPConfigIDGit": "[concat(variables('manager_sub0').lbID,'/frontendIPConfigurations/LoadBalancerFrontEndGit')]",
       "lbPoolID": "[concat(variables('manager_sub0').lbID,'/backendAddressPools/BackendPool1')]",
       "lbDtrPoolID": "[concat(variables('manager_sub0').lbID,'/backendAddressPools/BackendPool2')]",
       "lbProbeID": "[concat(variables('manager_sub0').lbID,'/probes/ucp')]"
@@ -234,6 +244,30 @@
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
           "domainNameLabel": "[variables('manager').dnsNameforApp]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('manager').publicIPAddressNameBuild]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('manager').dnsNameforBuild]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('manager').publicIPAddressNameGit]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('manager').dnsNameforGit]"
         }
       }
     },
@@ -438,6 +472,22 @@
                 "id": "[variables('manager_sub0').publicIPAddressIDApp]"
               }
             }
+          },
+          {
+            "name": "LoadBalancerFrontEndBuild",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('manager_sub0').publicIPAddressIDBuild]"
+              }
+            }
+          },
+          {
+            "name": "LoadBalancerFrontEndGit",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('manager_sub0').publicIPAddressIDGit]"
+              }
+            }
           }
         ],
         "backendAddressPools": [
@@ -531,6 +581,44 @@
               "protocol": "Tcp",
               "frontendPort": 80,
               "backendPort": 80,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[variables('manager_sub1').lbProbeID]"
+              }
+            }
+          },
+          {
+            "name": "LBRuleBuild",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('manager_sub1').frontEndIPConfigIDBuild]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('manager_sub1').lbPoolID]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 8080,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[variables('manager_sub1').lbProbeID]"
+              }
+            }
+          },
+          {
+            "name": "LBRuleGit",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('manager_sub1').frontEndIPConfigIDGit]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('manager_sub1').lbPoolID]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 3000,
               "enableFloatingIP": false,
               "idleTimeoutInMinutes": 5,
               "probe": {

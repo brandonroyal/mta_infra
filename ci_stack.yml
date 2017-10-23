@@ -1,0 +1,76 @@
+version: '3.3'
+
+services:
+  automation:
+    image: broyal/mtaci_jenkins:0.1
+    ports:
+      - "8080:8080"
+    volumes:
+      - automation_config:/var/jenkins_home
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - 'node.role == manager'
+    networks:
+      - ci
+    configs:
+      - jenkins_mta_job
+    secrets:
+      - jenkins-user
+      - jenkins-pass
+  
+  git:
+    image: broyal/mtaci_gogs:0.1
+    ports:
+      - "3000:3000"
+    volumes:
+      - git_config:/data
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - 'node.role == manager'
+    networks:
+      - ci
+      - git_db
+    configs:
+      - gogs_app_ini
+
+  git_db:
+    image: broyal/mtaci_gogs_db:0.1
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ssword1
+    volumes:
+      - db_db:/var/lib/mysql
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - 'node.role == manager'
+    networks:
+      - ci
+      - git_db
+
+networks:
+  ci:
+    driver: overlay
+  git_db:
+    driver: overlay
+
+volumes:
+  automation_config:
+  git_config:
+  db_db:
+
+configs:
+  jenkins_mta_job:
+    external: true
+  gogs_app_ini:
+    external: true
+
+secrets:
+  jenkins-user:
+    external: true
+  jenkins-pass:
+    external: true
