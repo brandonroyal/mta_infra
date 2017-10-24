@@ -1,4 +1,8 @@
 #!/bin/bash
+if [ -z "$DOCKER_VERSION" ]; then
+    echo 'DOCKER_VERSION is undefined'
+    exit 1
+fi
 
 sudo apt-get install -y \
   apt-transport-https \

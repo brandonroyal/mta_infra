@@ -9,6 +9,11 @@ if [ -z "$UCP_ADMIN_PASSWORD" ]; then
     exit 1
 fi
 
+if [ -z "$UCP_VERSION" ]; then
+    echo 'UCP_VERSION is undefined'
+    exit 1
+fi
+
 echo "UCP_PUBLIC_FQDN=$UCP_PUBLIC_FQDN"
 
 #start docker service
@@ -17,5 +22,5 @@ sudo service docker start
 #install UCP
 docker run --rm --name ucp \
   -v /var/run/docker.sock:/var/run/docker.sock \
-   docker/ucp:2.2.0 \
+   docker/ucp:$UCP_VERSION \
    install --san $UCP_PUBLIC_FQDN --admin-password $UCP_ADMIN_PASSWORD --debug

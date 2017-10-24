@@ -8,9 +8,9 @@ echo "Deploying Docker EE"
 echo "------------------------"
 echo ""
 
-DOCKER_ENGINE_VERSION="17.06.1-ee-1"
-DOCKER_UCP_VERSION="2.2.0"
-DOCKER_DTR_VERSION="2.3.0"
+DOCKER_ENGINE_VERSION="17.06.2-ee-4"
+DOCKER_UCP_VERSION="2.2.2"
+DOCKER_DTR_VERSION="2.3.4"
 #TODO: Check versions return a 200
 
 if [[ -z "${AZURE_RESOURCE_GROUP_NAME// }" ]]; then
@@ -93,7 +93,7 @@ if [[ $DEBUG == "true" ]]; then
         echo "[DEBUG] adding template to upload queue: $filepath"
         paths="$paths $filepath"
     done
-
+    echo $paths
     echo "[DEBUG] uploading templates"
     #upload files using gist CLI
     templates_base_uri=$(gist -pR $paths)
