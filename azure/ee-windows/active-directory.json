@@ -1,0 +1,202 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+      "prefix": {
+        "type": "string",
+        "metadata": {
+          "description": "Prefix used for all resources"
+        },
+        "minLength": 3,
+        "maxLength": 7
+      },
+      "adminUsername": {
+        "type": "string",
+        "metadata": {
+          "description": "Admin username"
+        }
+      },
+      "adminPassword": {
+        "type": "securestring",
+        "metadata": {
+          "description": "Admin password"
+        }
+      },
+      "vmSize": {
+        "type": "string",
+        "defaultValue": "Standard_DS2",
+        "metadata": {
+          "description": "Size of the VM"
+        }
+      },
+      "storageDomain": {
+        "type": "string",
+        "defaultValue": "blob.core.windows.net",
+        "allowedValues": [
+          "blob.core.windows.net",
+          "blob.core.usgovcloudapi.net"
+        ],
+        "metadata": {
+          "description": "Azure commercial or government domain"
+        }
+      },
+      "scriptsBaseUri": {
+        "type": "string",
+        "defaultValue": "https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/azure/scripts/" 
+      }
+    },
+    "variables": {
+        "storageAccountName": "[concat(parameters('prefix'),uniqueString(concat(resourceGroup().id, '-active-directory')))]",
+        "storageAccountType": "Premium_LRS",
+        "availabilitySetName": "[concat(parameters('prefix'), '_ad_as')]",
+        "publicIPAddressName": "[concat(parameters('prefix'), '_ad_pip')]",
+        "publicIPAddressType": "Dynamic",
+        "dnsName": "[concat(parameters('prefix'),'-ad-',uniqueString(resourceGroup().id))]",
+        "nicNamePrefix": "[concat(parameters('prefix'), '_ad_nic')]",
+        "vnetName": "[concat(parameters('prefix'), '_vnet')]",
+        "staticIpAddress": "10.0.144.30",
+        "subnetName": "Subnet",
+        "subnetRef": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]",
+        "vmNamePrefix": "[concat(parameters('prefix'), '-ad')]",
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "imageSKU": "2016-Datacenter",
+        "storageDomainSuffix": "[concat('.', parameters('storageDomain'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "accountType": "[variables('storageAccountType')]"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/availabilitySets",
+            "name": "[variables('availabilitySetName')]",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {}
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('publicIPAddressName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+              "dnsSettings": {
+                "domainNameLabel": "[variables('dnsName')]"
+              }
+            }
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('nicNamePrefix')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
+            ],
+            "properties": {
+              "ipConfigurations": [
+                {
+                  "name": "ipconfig1",
+                  "properties": {
+                    "privateIPAllocationMethod": "Static",
+                    "privateIPAddress": "[variables('staticIpAddress')]",
+                    "publicIPAddress": {
+                      "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+                    },
+                    "subnet": {
+                      "id": "[variables('subnetRef')]"
+                    },
+                    "loadBalancerBackendAddressPools": [],
+                    "loadBalancerInboundNatRules": []
+                  }
+                }
+              ]
+            }
+        },
+        {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[variables('vmNamePrefix')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+              "[concat('Microsoft.Network/networkInterfaces/', variables('nicNamePrefix'))]",
+              "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
+            ],
+            "properties": {
+              "availabilitySet": {
+                "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+              },
+              "hardwareProfile": {
+                "vmSize": "[parameters('vmSize')]"
+              },
+              "osProfile": {
+                "computerName": "[variables('vmNamePrefix')]",
+                "adminUsername": "[parameters('adminUsername')]",
+                "adminPassword": "[parameters('adminPassword')]"
+              },
+              "storageProfile": {
+                "imageReference": {
+                  "publisher": "[variables('imagePublisher')]",
+                  "offer": "[variables('imageOffer')]",
+                  "sku": "[variables('imageSKU')]",
+                  "version": "latest"
+                },
+                "osDisk": {
+                  "name": "osdisk",
+                  "vhd": {
+                    "uri": "[concat('http://',variables('storageAccountName'), variables('storageDomainSuffix'), '/vhds/','osdiskwrk.vhd')]"
+                  },
+                  "caching": "ReadWrite",
+                  "createOption": "FromImage"
+                }
+              },
+              "networkProfile": {
+                "networkInterfaces": [
+                  {
+                    "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNamePrefix'))]"
+                  }
+                ]
+              },
+              "diagnosticsProfile": {
+                "bootDiagnostics": {
+                  "enabled": "false"
+                }
+              }
+            }
+        },
+        {
+          "apiVersion": "2015-06-15",
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "name": "[concat(variables('vmNamePrefix'), '/ad_scriptextension')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'))]"
+          ],
+          "tags": {
+            "displayName": "[concat(parameters('prefix'), '_ad_', 'extension')]"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.7",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('scriptsBaseUri'), 'install-ad.ps1')]",
+                "[concat(parameters('scriptsBaseUri'), 'configure-ad.ps1')]"
+              ],
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -Noninteractive -File install-ad.ps1 -DomainPassword ', parameters('adminPassword'))]"
+            }
+          }
+      }
+    ]
+  }

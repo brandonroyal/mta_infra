@@ -1,16 +1,14 @@
 #!/bin/bash
-set -e
-
-az account list
+# set -e
 
 echo "------------------------"
 echo "Deploying Docker EE"
 echo "------------------------"
 echo ""
 
-DOCKER_ENGINE_VERSION="17.06.1-ee-2"
+DOCKER_ENGINE_VERSION="17.06.2-ee-4"
 DOCKER_UCP_VERSION="2.2.2"
-DOCKER_DTR_VERSION="2.3.2"
+DOCKER_DTR_VERSION="2.3.4"
 #TODO: Check versions return a 200
 
 if [[ -z "${AZURE_RESOURCE_GROUP_NAME// }" ]]; then
@@ -53,8 +51,6 @@ if [[ -z "${SSH_PUBLIC_KEY// }" ]]; then
     SSH_PUBLIC_KEY=$(cat "$ssh_public_key_path")
 fi
 
-
-
 echo "Resource Group Name: $AZURE_RESOURCE_GROUP_NAME"
 echo "Azure Location: $AZURE_LOCATION"
 echo "Resource Prefix: $AZURE_ITEM_PREFIX"
@@ -67,27 +63,38 @@ if [[ $continueAnswer != "y" ]]; then
     exit
 fi
 
-echo "[INFO] creating resource group"
-az group create --name $AZURE_RESOURCE_GROUP_NAME --location $AZURE_LOCATION
-
 if [[ $DEBUG == "true" ]]; then
 
     #upload script assets
-    paths=""
+    echo "#MTA Infra - Scripts" >> ./azure/scripts/README.md
+    IFS='/' read -r -a scripts_uri_array <<< "$(gist -pR ./azure/scripts/README.md)"
+    scripts_base_uri="https://gist.github.com/${scripts_uri_array[3]}/${scripts_uri_array[4]}/raw/"
+    scripts_gist_id=${scripts_uri_array[4]}
+    rm ./azure/scripts/README.md
     for filepath in ./azure/scripts/*; do
-        echo "[DEBUG] adding script to upload queue: $filepath"
-        paths="$paths $filepath"
+        echo "[DEBUG] uploading $filepath"
+        url=$(gist -u $scripts_gist_id $filepath)
     done
+    echo "[DEBUG] scripts base url: $scripts_base_uri"
 
-    echo "[DEBUG] uploading scripts"
-    #upload files using gist CLI
-    scripts_base_uri=$(gist -pR $paths)
-    #add trailing / to url (needed for concat joins later)
-    scripts_base_uri="$scripts_base_uri/"
+    #upload template assets
+    echo "#MTA Infra - Templates" >> ./azure/ee-windows/README.md
+    IFS='/' read -r -a templates_uri_array <<< "$(gist -pR ./azure/ee-windows/README.md)"
+    templates_base_uri="https://gist.github.com/${templates_uri_array[3]}/${templates_uri_array[4]}/raw/"
+    templates_gist_id=${templates_uri_array[4]}
+    rm ./azure/ee-windows/README.md
+    for filepath in ./azure/ee-windows/*; do
+        echo "[DEBUG] uploading $filepath"
+        url=$(gist -u $templates_gist_id $filepath)
+    done
+    echo "[DEBUG] templates base url: $templates_base_uri"  
 
     #set artifact base url parameter
     artifactBaseUriParameter="
     ,
+    \"templatesBaseUri\": {
+        \"value\": \""$templates_base_uri"\"
+    },
     \"scriptsBaseUri\": {
         \"value\": \""$scripts_base_uri"\"
     }
@@ -120,15 +127,16 @@ parameters="
     $artifactBaseUriParameter
 }
 "
+#create resource group
+echo "[INFO] creating resource group: $AZURE_RESOURCE_GROUP_NAME"
+rg=$(az group create --name $AZURE_RESOURCE_GROUP_NAME --location $AZURE_LOCATION)
 
 if [[ $DEBUG == "true" ]]; then
     echo "[DEBUG] setting trap to cleanup gist on exit"
-    # trap "gist --delete $scripts_base_uri" EXIT
-    echo "[DEBUG] using parameters:"
-    echo $parameters
+    trap "echo '[DEBUG] cleaning up gist scripts and templates'; gist --delete $scripts_gist_id; gist --delete $templates_gist_id" EXIT
     echo "[DEBUG] creating deployment"
     az group deployment create \
-        --template-file azure/ee-windows/azuredeploy.json \
+        --template-file azure/ee-windows/index.json \
         --parameters "$parameters" \
         -g $AZURE_RESOURCE_GROUP_NAME \
         --verbose
@@ -140,3 +148,5 @@ else
         -g $AZURE_RESOURCE_GROUP_NAME \
         --verbose
 fi
+
+az network public-ip list --query "[].{name:name, fqdn:dnsSettings.fqdn}" -g $AZURE_RESOURCE_GROUP_NAME

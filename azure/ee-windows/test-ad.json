@@ -1,0 +1,158 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+        "prefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Prefix used for all resources"
+            },
+            "minLength": 3,
+            "maxLength": 7
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin username"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Admin password"
+            }
+        },
+        "sshPublicKey": {
+            "metadata": {
+                "description": "SSH public key"
+            },
+            "type": "string"
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_DS2",
+            "metadata": {
+                "description": "Size of the VM"
+            }
+        },
+        "managerCount": {
+            "type": "int",
+            "defaultValue": 1,
+            "metadata": {
+                "description": "Number of worker nodes"
+            }
+        },
+        "workerCount": {
+            "type": "int",
+            "defaultValue": 3,
+            "metadata": {
+                "description": "Number of worker nodes"
+            }
+        },
+        "storageDomain": {
+            "type": "string",
+            "defaultValue": "blob.core.windows.net",
+            "allowedValues": [
+                "blob.core.windows.net",
+                "blob.core.usgovcloudapi.net"
+            ],
+            "metadata": {
+                "description": "Azure commercial or government domain"
+            }
+        },
+        "dockerVersion": {
+            "type": "string"
+        },
+        "ucpVersion": {
+            "type": "string"
+        },
+        "dtrVersion": {
+            "type": "string"
+        },
+        "dnsFqdnSuffix": {
+            "type": "string",
+            "defaultValue": "cloudapp.azure.com",
+            "allowedValues": [
+                "cloudapp.azure.com",
+                "cloudapp.usgovcloudapi.net"
+            ]
+        },
+        "scriptsBaseUri": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/azure/scripts/" 
+        },
+        "templatesBaseUri": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/BrandonRoyal/mta_infra/master/azure/ee-windows/"
+        }
+    },
+    "variables": {},
+    "resources": [
+        { 
+            "apiVersion": "2017-05-10", 
+            "name": "network_template", 
+            "type": "Microsoft.Resources/deployments",
+            "properties": { 
+              "mode": "Incremental", 
+              "templateLink": {
+                "uri": "[concat(parameters('templatesBaseUri'), 'network.json')]",
+                "contentVersion": "1.0.0.0"
+              }, 
+              "parameters": { 
+                "prefix":{ "value": "[parameters('prefix')]" }
+              } 
+            } 
+        },
+        {
+            "apiVersion": "2017-05-10", 
+            "name": "active_directory_template", 
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'network_template')]"
+            ],
+            "properties": { 
+              "mode": "Incremental", 
+              "templateLink": {
+                "uri": "[concat(parameters('templatesBaseUri'), 'active-directory.json')]",
+                "contentVersion": "1.0.0.0"
+              }, 
+              "parameters": { 
+                "prefix":{ "value": "[parameters('prefix')]" },
+                "adminUsername":{ "value": "[parameters('adminUsername')]" },
+                "adminPassword":{ "value": "[parameters('adminPassword')]" },
+                "vmSize":{ "value": "[parameters('vmSize')]" },
+                "storageDomain":{ "value": "[parameters('storageDomain')]" },
+                "scriptsBaseUri":{ "value": "[parameters('scriptsBaseUri')]" }
+              }
+            } 
+        },
+        {
+            "apiVersion": "2017-05-10", 
+            "name": "ucp_dtr_template", 
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'network_template')]"
+            ],
+            "properties": { 
+              "mode": "Incremental", 
+              "templateLink": {
+                "uri": "[concat(parameters('templatesBaseUri'), 'ucp-dtr-mgr.json')]",
+                "contentVersion": "1.0.0.0"
+              }, 
+              "parameters": { 
+                "prefix":{ "value": "[parameters('prefix')]" },
+                "adminUsername":{ "value": "[parameters('adminUsername')]" },
+                "adminPassword":{ "value": "[parameters('adminPassword')]" },
+                "sshPublicKey": { "value": "[parameters('sshPublicKey')]" },
+                "vmSize":{ "value": "[parameters('vmSize')]" },
+                "storageDomain":{ "value": "[parameters('storageDomain')]" },
+                "dockerVersion":{ "value": "[parameters('dockerVersion')]"},
+                "ucpVersion":{ "value": "[parameters('ucpVersion')]"},
+                "dtrVersion":{ "value": "[parameters('dtrVersion')]"},
+                "scriptsBaseUri":{ "value": "[parameters('scriptsBaseUri')]" }
+              }
+            } 
+        },
+    ]
+  }
