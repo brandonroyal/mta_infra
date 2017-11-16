@@ -2,17 +2,9 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
   "contentVersion": "1.0.0.0",
   "outputs": {
-    "mgr_ucp_pip": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('manager').publicIPAddressNameUcp)).ipAddress]"
-    },
     "mgr_ucp_hostname": {
       "type": "string",
       "value": "[variables('manager_sub0').ucpHostname]"
-    },
-    "mgr_dtr_pip": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('manager').publicIPAddressNameDtr)).ipAddress]"
     },
     "mgr_dtr_hostname": {
       "type": "string",
@@ -128,12 +120,12 @@
       "lbDtrPoolID": "[concat(variables('manager_sub0').lbID,'/backendAddressPools/BackendPool2')]",
       "lbProbeID": "[concat(variables('manager_sub0').lbID,'/probes/ucp')]"
     },
-    "storageAccountName": "[concat(variables('prefix'),uniqueString(concat(resourceGroup().id, '-ucp-mgr')))]",
+    "storageAccountName": "[concat(variables('prefix'),uniqueString(concat(resourceGroup().id, '-ucp-dtr-mgr')))]",
     "storageAccountType": "Premium_LRS",
     "storageDomainSuffix": "[concat('.', parameters('storageDomain'))]",
     "subnetName": "Subnet",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables ('subnetName'))]",
-    "publicIPAddressType": "Static",
+    "publicIPAddressType": "Dynamic",
     "vnetName": "[concat(variables('prefix'), '_vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnetName'))]",
     "sshKeyPath": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]"
@@ -418,17 +410,7 @@
         "osProfile": {
           "computerName": "[concat(variables('manager').vmNamePrefix, copyIndex())]",
           "adminUsername": "[parameters('adminUsername')]",
-          "linuxConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-              "publicKeys": [
-                {
-                  "keyData": "[parameters('sshPublicKey')]",
-                  "path": "[variables('sshKeyPath')]"
-                }
-              ]
-            }
-          }
+          "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {

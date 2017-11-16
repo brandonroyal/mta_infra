@@ -106,61 +106,9 @@
         },
         {
             "apiVersion": "2017-05-10", 
-            "name": "active_directory_template", 
-            "type": "Microsoft.Resources/deployments",
-            "dependsOn": [
-                "[concat('Microsoft.Resources/deployments/', 'network_template')]"
-            ],
-            "properties": { 
-              "mode": "Incremental", 
-              "templateLink": {
-                "uri": "[concat(parameters('templatesBaseUri'), 'active-directory.json')]",
-                "contentVersion": "1.0.0.0"
-              }, 
-              "parameters": { 
-                "prefix":{ "value": "[parameters('prefix')]" },
-                "adminUsername":{ "value": "[parameters('adminUsername')]" },
-                "adminPassword":{ "value": "[parameters('adminPassword')]" },
-                "vmSize":{ "value": "[parameters('vmSize')]" },
-                "storageDomain":{ "value": "[parameters('storageDomain')]" },
-                "scriptsBaseUri":{ "value": "[parameters('scriptsBaseUri')]" }
-              }
-            } 
-        },
-        {
-            "apiVersion": "2017-05-10", 
-            "name": "ucp_dtr_template", 
-            "type": "Microsoft.Resources/deployments",
-            "dependsOn": [
-                "[concat('Microsoft.Resources/deployments/', 'network_template')]"
-            ],
-            "properties": { 
-              "mode": "Incremental", 
-              "templateLink": {
-                "uri": "[concat(parameters('templatesBaseUri'), 'ucp-dtr-mgr.json')]",
-                "contentVersion": "1.0.0.0"
-              }, 
-              "parameters": { 
-                "prefix":{ "value": "[parameters('prefix')]" },
-                "adminUsername":{ "value": "[parameters('adminUsername')]" },
-                "adminPassword":{ "value": "[parameters('adminPassword')]" },
-                "sshPublicKey": { "value": "[parameters('sshPublicKey')]" },
-                "vmSize":{ "value": "[parameters('vmSize')]" },
-                "storageDomain":{ "value": "[parameters('storageDomain')]" },
-                "dockerVersion":{ "value": "[parameters('dockerVersion')]"},
-                "ucpVersion":{ "value": "[parameters('ucpVersion')]"},
-                "dtrVersion":{ "value": "[parameters('dtrVersion')]"},
-                "scriptsBaseUri":{ "value": "[parameters('scriptsBaseUri')]" }
-              }
-            } 
-        },
-        {
-            "apiVersion": "2017-05-10", 
             "name": "ucp_wrk_win_template", 
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[concat('Microsoft.Resources/deployments/', 'active_directory_template')]",
-                "[concat('Microsoft.Resources/deployments/', 'ucp_dtr_template')]"
             ],
             "properties": { 
               "mode": "Incremental", 

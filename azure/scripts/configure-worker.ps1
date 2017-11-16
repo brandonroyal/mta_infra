@@ -1,16 +1,48 @@
 [CmdletBinding()]
 Param(
-  [switch] $SkipEngineUpgrade,
-  [string] $ArtifactPath = ".",
-  [string] $DockerVersion = "17.06.1-ee-1",
-  [string] $UcpVersion,
-  [string] $DTRFQDN
+    [Parameter()]
+    [switch] $SkipEngineUpgrade,
+
+    [Parameter()]
+    [string] $ArtifactPath = ".",
+
+    [Parameter(Mandatory=$true)]
+    [string] $DockerVersion,
+
+    [Parameter(Mandatory=$true)]
+    [string] $UcpVersion,
+
+    [Parameter(Mandatory=$true)]
+    [string] $UcpHostname,
+
+    [Parameter()]
+    [string] $UcpUsername = "admin",
+
+    [Parameter(Mandatory=$true)]
+    [string] $UcpPassword,
+
+    [Parameter()]
+    [string] $AdminUsername,
+
+    [Parameter(Mandatory=$true)]
+    [string] $AdminPassword,
+
+    [Parameter()]
+    [string] $DnsInternalIp = "10.0.144.30",
+
+    [Parameter()]
+    [string] $UcpInternalIp = "10.0.144.5",
+
+    [Parameter(Mandatory=$true)]
+    [string] $DTRFQDN,
+
+    [Parameter()]    
+    [string] $DomainName = "docker.local"
+    
 )
 
 #Variables
 $Date = Get-Date -Format "yyyy-MM-dd HHmmss"
-$DockerPath = "C:\Program Files\Docker"
-$DockerDataPath = "C:\ProgramData\Docker"
 
 function Disable-RealTimeMonitoring () {
     Set-MpPreference -DisableRealtimeMonitoring $true
@@ -47,7 +79,7 @@ function Disable-Firewall () {
 }
 
 function Install-OpenSSH () {
-    $DownloadFileUri="https://github.com/PowerShell/Win32-OpenSSH/releases/download/v0.0.18.0/OpenSSH-Win32.zip"
+    $DownloadFileUri="https://github.com/PowerShell/Win32-OpenSSH/releases/download/v0.0.22.0/OpenSSH-Win32.zip"
     $ProgramFilesPath="C:\Program Files\"
     $SSHProgramPath=$(Join-Path $ProgramFilesPath "OpenSSH-Win32")
     
@@ -65,17 +97,75 @@ function Install-OpenSSH () {
     Start-Service sshd
 }
 
-function Set-DtrHostnameEnvironmentVariable() {
-    $DTRFQDN | Out-File (Join-Path $DockerDataPath "dtr_fqdn")
+function Set-DtrAsInsecureRegistry() {
+    #only for PoC purposes to allow push/pull to DTR that uses self-signed certs
+    $json = @"
+    {
+       "insecure-registries": [ "${DTRFQDN}" ]
+    }
+"@
+    $json | Out-File "c:\programdata\docker\config\daemon.json" -Encoding ascii -Force
+    Restart-Service docker
 }
 
-function Get-UcpImages() {
+function Start-UcpNodePrep() {
     docker pull docker/ucp-dsinfo-win:$UcpVersion
     docker pull docker/ucp-agent-win:$UcpVersion
 
     Add-Content setup.ps1 $(docker run --rm docker/ucp-agent-win:$UcpVersion windows-script)
     & .\setup.ps1
     Remove-Item -Force setup.ps1
+}
+
+
+
+function Update-DnsConfiguration(){
+    # Set DNS Servers on eth device to Domain Controller / DNS + Azure DNS (e.g. existing DNS)
+    Write-Host "[INFO] Available network adapters"
+    Get-NetAdapter
+    # $ifIndex = (Get-NetAdapter -Name "vEthernet (HNSTransparent)").ifIndex
+    $ifIndex = (Get-NetAdapter -Name Ethernet*).ifIndex
+    $existingDns = (Get-DnsClientServerAddress -InterfaceIndex $ifIndex -AddressFamily ipv4).ServerAddresses
+    Write-Host "[INFO] Setting DNS to $DnsInternalIp and $existingDns"
+    Set-DnsClientServerAddress -InterfaceIndex $ifIndex -ServerAddresses $DnsInternalIp, $existingDns
+}
+
+function Test-DomainConnectivity(){
+    Test-Connection $DomainName
+}
+
+function Join-Domain(){
+    #troubleshooting only
+    $tempPassword = "P@ssword1"
+    $secureAdminPassword = ConvertTo-SecureString $tempPassword -AsPlainText -Force
+    $credentials = New-Object System.Management.Automation.PSCredential ($AdminUsername, $secureAdminPassword)
+    Add-Computer -DomainName $DomainName -Credential $credentials
+}
+
+function Join-SwarmNode() {
+    
+    add-type @"
+            using System.Net;
+            using System.Security.Cryptography.X509Certificates;
+    
+                public class SelfSignedAllowedPolicy : ICertificatePolicy {
+                public SelfSignedAllowedPolicy() {}
+                public bool CheckValidationResult(
+                    ServicePoint sPoint, X509Certificate cert,
+                    WebRequest wRequest, int certProb) {
+                    return true;
+                }
+            }
+"@
+    
+    [System.Net.ServicePointManager]::CertificatePolicy = new-object SelfSignedAllowedPolicy
+    $body=@{
+        'username' = $UcpUsername
+        'password' = $UcpPassword
+    } | ConvertTo-Json
+    $auth_response = Invoke-RestMethod -Uri https://$UcpHostname/auth/login -Body $body -Method Post
+    $swarm_response = Invoke-RestMethod -Uri https://$UcpHostname/swarm -Headers @{"AUTHORIZATION"="Bearer " + $auth_response.auth_token } -Method Get
+    docker swarm join --token $swarm_response.JoinTokens.Worker $UcpInternalIp
 }
 
 #Start Script
@@ -86,30 +176,48 @@ try
 {
     Start-Transcript -path "C:\ProgramData\Docker\configure-worker $Date.log" -append
 
-    Write-Host "Disabling Real Time Monitoring"
+    Write-Host "[INFO] Disabling Real Time Monitoring"
     Disable-RealTimeMonitoring
     
     if (-not ($SkipEngineUpgrade.IsPresent)) {
-        Write-Host "Upgrading Docker Engine"
+        Write-Host "[INFO] Upgrading Docker Engine"
         Install-LatestDockerEngine
     }
 
-    Write-Host "Getting UCP Images"
-    Get-UcpImages
+    Write-Host "[INFO] Setting DTR As Insecure Registry"
+    Set-DtrAsInsecureRegistry
 
-    Write-Host "Disabling Firewall"
+    Write-Host "[INFO] Getting UCP Images and Preparing Node"
+    Start-UcpNodePrep
+
+    Write-Host "[INFO] Disabling Firewall"
     Disable-Firewall
 
-    Write-Host "Installing OpenSSH"
+    Write-Host "[INFO] Installing OpenSSH"
     Install-OpenSSH
 
-    Write-Host "Set DTR FQDN Environment Variable"
-    Set-DtrHostnameEnvironmentVariable
+    # Write-Host "[INFO] Updating DNS Settings"
+    # Update-DnsConfiguration
 
-    Write-Host "Restarting machine"
-    Stop-Transcript
+    Write-Host "[INFO] Testing DNS and Connectivity to Domain"
+    Test-DomainConnectivity
+
+    # Write-Host "[INFO] Joining Domain"
+    # Join-Domain
+
+    Write-Host "[INFO] Join Swarm Cluster"
+    Join-SwarmNode
+
+    Write-Host "[INFO] Script Complete. Restarting Machine"
+    
+    Restart-Computer -Force
 }
 catch
 {
-    Write-Error $_
+    Write-Error "[FATAL] Configure worker failed"
+    Write-Error $_.Exception
+}
+finally
+{
+    Stop-Transcript
 }

@@ -1,36 +1,91 @@
 [CmdletBinding()]
 Param(
   [string] $DomainName = "docker.local",
-  [string] $DomainNetbiosName = "docker",
-  [securestring] $DomainPassword,
-  [string] $DomainFunctionalLevel = "Win2012R2"
+  [string] $MachinePrefix = "broyal",
+  [int] $WorkCount = 3
 )
 
-function Install-ADDomainController {
-  # ----
-  # based on https://gist.github.com/PatrickLang/27c743782fca17b19bf94490cbb6f960 - credit Patrick Lang
-  # ----
+#Variables
+$Date = Get-Date -Format "yyyy-MM-dd HHmmss"
+$ContainerHostsGroupName = "containerhosts"
+$WaitForHostSleep = New-TimeSpan -Seconds 30
+$WaitForHostTimeout = New-TimeSpan -Minutes 3
 
-  # Install AD Services
-  Install-WindowsFeature AD-Domain-Services
-  # Import AD Domain Service Deployment module
-  Import-Module ADDSDeployment
+$AppName = "app1"
 
-  # Configure Domain Forest
-  Install-ADDSForest -DomainName $DomainName -DomainNetbiosName $DomainNetbiosName -CreateDnsDelegation:$false -DatabasePath "C:\Windows\NTDS" -DomainMode $DomainFunctionalLevel -ForestMode $DomainFunctionalLevel -InstallDns:$true -LogPath "C:\Windows\NTDS" -NoRebootOnCompletion:$false -SysvolPath "C:\Windows\SYSVOL" -SafeModeAdministratorPassword $DomainPasswordSecure -Force:$true
-  # Machine Restart
+$TestUserName = "user1"
+$TestUserPassword = "Password123!"
 
-  
-  
+function New-ADHostsGroup(){
+  # This next step is bad. Don't do it in production. I'm not a Kerberos expert so I won't try to explain why  
+  Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
+
+  New-ADGroup -GroupCategory Security -DisplayName "Container Hosts" -Name $ContainerHostsGroupName -GroupScope Universal
 }
 
-function Schedule-ActionOnRestart {
-  # Do not do this in production. Just for POC purposes
-  $action = New-ScheduledTaskAction -Execute 'Powershell' `
-    -Argument '-NoProfile -WindowStyle Hidden -Command "Add-KdsRootKey –EffectiveTime ((get-date).addhours(-10))"'
-  $trigger = New-ScheduledTaskTrigger -AtLogOn
-  Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Complete AD Config"
+function Get-HostAvailability($HostName){
+  try
+  {
+      return $(Get-ADComputer -Identity $HostName).Enabled
+  }
+  catch
+  {
+      return $False
+  }
 }
 
-Install-ADDomainController
-Schedule-ActionOnRestart
+function Add-ContainerHostToGroup($HostName){
+  #check if AD host exists in domain, if not, wait
+  $timeoutIntervals = $($WaitForHostTimeout.TotalSeconds / $WaitForHostSleep.TotalSeconds)
+  $i = 0
+
+  Write-Host "[INFO] determining $HostName host availability in domain before attempting to join to group"
+  while (!(Get-HostAvailability -HostName $HostName) -and ($i -lt $timeoutIntervals)) {
+    $i++
+    Write-Host "[INFO] $HostName unavailable in domain. Waiting $($WaitForHostSleep.TotalSeconds) seconds before retrying [$i/$timeoutIntervals]"
+    Start-Sleep $WaitForHostSleep.TotalSeconds
+    
+  }
+  if ($i -ge $timeoutIntervals){
+    Write-Host "[ERROR] $HostName failed to join $ContainerHostsGroupName AD group. host availability in domain timed out"
+    return
+  }
+  Write-Host "[INFO] $HostName available. Adding to $ContainerHostsGroupName AD Group"
+  Get-ADGroup $ContainerHostsGroupName | Add-ADGroupMember -Members (Get-ADComputer -Identity $HostName)
+}
+
+function New-GroupManagedServiceAccount(){
+  New-ADServiceAccount -name $AppName -DnsHostName "$AppName.$DomainName"  -ServicePrincipalNames "http/$AppName.$DomainName" -PrincipalsAllowedToRetrieveManagedPassword $ContainerHostsGroupName
+}
+
+function New-DomainUsers(){
+  New-ADUser -Name $TestUserName -PasswordNeverExpires $true -AccountPassword ($TestUserPassword | ConvertTo-SecureString -AsPlainText -Force) -Enabled $true
+  $user1 = Get-ADUser User1
+  $usergroup = New-ADGroup -GroupCategory Security -DisplayName "App1 Authorized Users" -Name App1Users -GroupScope Universal
+  $usergroup | Add-ADGroupMember -Members (Get-ADComputer -Identity broyal-wrk0)
+}
+
+try
+{
+  Start-Transcript -path "C:\configure-ad_$Date.log" -append
+  
+  Write-Host "[INFO] Creating AD Group for Container Hosts"
+  New-ADHostsGroup
+
+  Write-Host "[INFO] Joining hosts to container hosts AD Group"
+  For ($i=0; $i -lt $WorkCount; $i++) {
+    Add-ContainerHostToGroup -HostName "$MachinePrefix-wrk$i"
+  }
+
+  Write-Host "[INFO] Creating gMSA"
+  New-GroupManagedServiceAccount
+
+  Write-Host "[INFO] Creating Test Users"
+  New-DomainUsers
+
+  Stop-Transcript
+}
+catch
+{
+  Write-Error $_
+}

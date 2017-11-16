@@ -17,7 +17,8 @@
       "subnetName": "Subnet",
       "subnetPrefix": "10.0.144.0/24",
       "vnetName": "[concat(parameters('prefix'), '_vnet')]",
-      "nsgName": "[concat(parameters('prefix'), '_nsg')]"
+      "nsgName": "[concat(parameters('prefix'), '_nsg')]",
+      "DNSServerAddress": ["10.0.144.30", "8.8.8.8"]
     },
     "resources": [
       {
@@ -38,7 +39,10 @@
                 "addressPrefix": "[variables('subnetPrefix')]"
               }
             }
-          ]
+          ],
+          "dhcpOptions": {
+            "dnsServers": "[variables('DNSServerAddress')]"
+          }
         }
       },
       {

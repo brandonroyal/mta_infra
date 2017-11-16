@@ -174,29 +174,29 @@
             }
         },
         {
-          "apiVersion": "2015-06-15",
-          "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(variables('vmNamePrefix'), '/ad_scriptextension')]",
-          "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'))]"
-          ],
-          "tags": {
-            "displayName": "[concat(parameters('prefix'), '_ad_', 'extension')]"
-          },
-          "properties": {
-            "publisher": "Microsoft.Compute",
-            "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.7",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "fileUris": [
-                "[concat(parameters('scriptsBaseUri'), 'install-ad.ps1')]",
-                "[concat(parameters('scriptsBaseUri'), 'configure-ad.ps1')]"
-              ],
-              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -Noninteractive -File install-ad.ps1 -DomainPassword ', parameters('adminPassword'))]"
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('vmNamePrefix'), '/ad_scriptextension')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'))]"
+            ],
+            "tags": {
+              "displayName": "[concat(parameters('prefix'), '_ad_', 'extension')]"
+            },
+            "properties": {
+              "publisher": "Microsoft.Compute",
+              "type": "CustomScriptExtension",
+              "typeHandlerVersion": "1.7",
+              "autoUpgradeMinorVersion": true,
+              "settings": {
+                "fileUris": [
+                  "[concat(parameters('scriptsBaseUri'), 'install-ad.ps1')]",
+                  "[concat(parameters('scriptsBaseUri'), 'configure-ad.ps1')]"
+                ],
+                "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -Noninteractive -File install-ad.ps1 -DomainPassword ', parameters('adminPassword'))]"
+              }
             }
-          }
-      }
+        }
     ]
   }

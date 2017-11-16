@@ -1,8 +1,13 @@
 #!/bin/bash
 if [ -z "$DOCKER_VERSION" ]; then
-    echo 'DOCKER_VERSION is undefined'
+    echo '[FATAL] DOCKER_VERSION is undefined'
     exit 1
 fi
+
+echo "---------------------------"
+echo "Install Docker EE Engine (install-docker.sh)"
+echo "---------------------------"
+echo "[INFO] installing Docker engine version $DOCKER_VERSION"
 
 sudo apt-get install -y \
   apt-transport-https \
@@ -18,3 +23,7 @@ sudo add-apt-repository \
 
 sudo apt-get update
 sudo apt-get install -y docker-ee
+
+echo "---------------------------"
+echo "Install Docker EE Engine Complete"
+echo "---------------------------"
