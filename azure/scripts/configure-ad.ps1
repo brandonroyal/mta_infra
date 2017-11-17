@@ -1,7 +1,7 @@
 [CmdletBinding()]
 Param(
   [string] $DomainName = "docker.local",
-  [string] $MachinePrefix = "broyal",
+  [string] $MachinePrefix,
   [int] $WorkCount = 3
 )
 
@@ -62,7 +62,10 @@ function New-DomainUsers(){
   New-ADUser -Name $TestUserName -PasswordNeverExpires $true -AccountPassword ($TestUserPassword | ConvertTo-SecureString -AsPlainText -Force) -Enabled $true
   $user1 = Get-ADUser User1
   $usergroup = New-ADGroup -GroupCategory Security -DisplayName "App1 Authorized Users" -Name App1Users -GroupScope Universal
-  $usergroup | Add-ADGroupMember -Members (Get-ADComputer -Identity broyal-wrk0)
+  For ($i=0; $i -lt $WorkCount; $i++) {
+    $usergroup | Add-ADGroupMember -Members (Get-ADComputer -Identity $("{0}-wrk{1}" -F $MachinePrefix, $i) )
+  }
+  
 }
 
 try

@@ -49,16 +49,16 @@
     "variables": {
         "storageAccountName": "[concat(parameters('prefix'),uniqueString(concat(resourceGroup().id, '-active-directory')))]",
         "storageAccountType": "Premium_LRS",
-        "availabilitySetName": "[concat(parameters('prefix'), '_ad_as')]",
-        "publicIPAddressName": "[concat(parameters('prefix'), '_ad_pip')]",
+        "availabilitySetName": "[concat(parameters('prefix'), '_sql_as')]",
+        "publicIPAddressName": "[concat(parameters('prefix'), '_sql_pip')]",
         "publicIPAddressType": "Dynamic",
-        "dnsName": "[concat(parameters('prefix'),'-ad-',uniqueString(resourceGroup().id))]",
-        "nicNamePrefix": "[concat(parameters('prefix'), '_ad_nic')]",
+        "dnsName": "[concat(parameters('prefix'),'-sql-',uniqueString(resourceGroup().id))]",
+        "nicNamePrefix": "[concat(parameters('prefix'), '_sql_nic')]",
         "vnetName": "[concat(parameters('prefix'), '_vnet')]",
-        "staticIpAddress": "10.0.144.30",
+        "staticIpAddress": "10.0.144.32",
         "subnetName": "Subnet",
         "subnetRef": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]",
-        "vmNamePrefix": "[concat(parameters('prefix'), '-ad')]",
+        "vmNamePrefix": "[concat(parameters('prefix'), '-sql')]",
         "imagePublisher": "MicrosoftWindowsServer",
         "imageOffer": "WindowsServer",
         "imageSKU": "2016-Datacenter",
@@ -174,29 +174,28 @@
             }
         },
         {
-            "apiVersion": "2015-06-15",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('vmNamePrefix'), '/ad_scriptextension')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-              "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'))]"
-            ],
-            "tags": {
-              "displayName": "[concat(parameters('prefix'), '_ad_', 'extension')]"
-            },
-            "properties": {
-              "publisher": "Microsoft.Compute",
-              "type": "CustomScriptExtension",
-              "typeHandlerVersion": "1.7",
-              "autoUpgradeMinorVersion": true,
-              "settings": {
-                "fileUris": [
-                  "[concat(parameters('scriptsBaseUri'), 'install-ad.ps1')]",
-                  "[concat(parameters('scriptsBaseUri'), 'configure-ad.ps1')]"
-                ],
-                "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -Noninteractive -File install-ad.ps1 -DomainPassword ', parameters('adminPassword'))]"
-              }
+          "apiVersion": "2015-06-15",
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "name": "[concat(variables('vmNamePrefix'), '/sql_scriptextension')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'))]"
+          ],
+          "tags": {
+            "displayName": "[concat(parameters('prefix'), '_slq_', 'extension')]"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.7",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('scriptsBaseUri'), 'configure-host.ps1')]"
+              ],
+              "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -Noninteractive -File configure-host.ps1')]"
             }
-        }
+          }
+      }
     ]
   }
