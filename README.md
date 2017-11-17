@@ -51,7 +51,7 @@ Use SSH (or Remote Desktop Client) to connect to Windows Worker.  Note that each
 | *-wrk2 | `<wrk-hostname>` | 50022 | 50002 |
 
 ```bash
-ssh -p 50020 docker@<ad-server-hostname>
+ssh -p 50020 docker@<wrk-hostname>
 ```
 
 Open PowerShell
