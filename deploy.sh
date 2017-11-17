@@ -6,8 +6,8 @@ echo "Deploying Docker EE"
 echo "------------------------"
 echo ""
 
-DOCKER_ENGINE_VERSION="17.06.2-ee-4"
-DOCKER_UCP_VERSION="2.2.2"
+DOCKER_ENGINE_VERSION="17.06.2-ee-5"
+DOCKER_UCP_VERSION="2.2.4"
 DOCKER_DTR_VERSION="2.3.4"
 #TODO: Check versions return a 200
 
