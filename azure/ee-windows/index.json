@@ -199,8 +199,6 @@
                 "adminPassword":{ "value": "[parameters('adminPassword')]" },
                 "vmSize":{ "value": "[parameters('vmSize')]" },
                 "storageDomain":{ "value": "[parameters('storageDomain')]" },
-                "dockerVersion":{ "value": "[parameters('dockerVersion')]"},
-                "ucpVersion":{ "value": "[parameters('ucpVersion')]"},
                 "scriptsBaseUri":{ "value": "[parameters('scriptsBaseUri')]" }
               }
             } 
@@ -224,8 +222,6 @@
                 "adminPassword":{ "value": "[parameters('adminPassword')]" },
                 "vmSize":{ "value": "[parameters('vmSize')]" },
                 "storageDomain":{ "value": "[parameters('storageDomain')]" },
-                "dockerVersion":{ "value": "[parameters('dockerVersion')]"},
-                "ucpVersion":{ "value": "[parameters('ucpVersion')]"},
                 "scriptsBaseUri":{ "value": "[parameters('scriptsBaseUri')]" }
               }
             } 
