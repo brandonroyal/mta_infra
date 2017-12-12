@@ -197,6 +197,9 @@ try
     Write-Host "[INFO] Getting UCP Images and Preparing Node"
     Start-UcpNodePrep
 
+    Write-Host "[INFO] Installing Windows Updates"
+    Install-WindowsUpdates
+
     Write-Host "[INFO] Disabling Firewall"
     Disable-Firewall
 
