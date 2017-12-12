@@ -65,6 +65,13 @@ function Install-LatestDockerEngine () {
     Start-Service docker
 }
 
+function Install-WindowsUpdates() {
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    Install-Module PSWindowsUpdate -Force
+    # https://github.com/moby/moby/issues/34696#issuecomment-347342896
+    Get-WUInstall -WindowsUpdate -KBArticleID 4051033 -AcceptAll
+}
+
 function Disable-Firewall () {
     #Disable firewall (temporary)
     Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
@@ -189,6 +196,9 @@ try
 
     Write-Host "[INFO] Getting UCP Images and Preparing Node"
     Start-UcpNodePrep
+
+    Write-Host "[INFO] Installing Windows Updates"
+    Install-WindowsUpdates
 
     Write-Host "[INFO] Disabling Firewall"
     Disable-Firewall
